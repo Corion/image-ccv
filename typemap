@@ -1,0 +1,2 @@
+TYPEMAP
+ccv_sift_param_t*	T_PTROBJ

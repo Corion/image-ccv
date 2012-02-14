@@ -116,6 +116,49 @@ CCV
     ;
 
 
+sub sift {
+    my ($object, $scene, $params) = @_;
+    $params ||= {
+	noctaves => 3,
+	nlevels => 5,
+	up2x => 1,
+	edge_threshold => 10,
+	norm_threshold => 0,
+	peak_threshold => 0,
+    };
+    
+    my %default = (
+	noctaves => 3,
+	nlevels => 5,
+	up2x => 1,
+	edge_threshold => 10,
+	norm_threshold => 0,
+	peak_threshold => 0,
+    );
+    $params = \%default;
+    
+    #for (keys %default) {
+   # 	if(! exists $params->{ $_ }) {
+   #         $params->{ $_ } = $default{ $_ }
+   # 	};
+   # };
+    
+    if( ref $params ne 'ccv_sift_param_tPtr') {
+    	$params = myccv_pack_parameters(
+    	    @{$params}{qw<
+    	        noctaves
+    	        nlevels
+    	        up2x
+    	        edge_threshold
+    	        norm_threshold
+    	        peak_threshold
+    	    >}
+    	);
+    };
+    
+    myccv_sift( $object, $scene, $params);
+};
+
 #my $scene  = "onion-skew-240x253.png";
 my $scene  = "IMG_1229_bw_small.png";
 my $object = "IMG_1230_bw_sofa.png";
