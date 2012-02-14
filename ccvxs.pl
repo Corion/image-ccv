@@ -166,7 +166,7 @@ my $object = "IMG_1230_bw_sofa.png";
 #my $object = "$ccv_base/samples/basmati.png";
 my $ccv = "$ccv_base/bin/siftmatch.exe";
 
-my @coords = sift( $object, $scene );
+my @coords = sift( $object, $scene, );
 print "@$_\n" for @coords;
 
 my $scene_image = Imager->new( file => $scene );
