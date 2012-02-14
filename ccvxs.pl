@@ -7,14 +7,40 @@ use List::Util qw(max);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
+# TODO: Make ccv_array_t into a class, so automatic destruction works
+# TODO: ccv_sift_param_t currently leaks. Add a DESTROY method.
+
 use Inline
     C => <<'CCV',
 #include "ccv.h"
-void sift(char* object_file, char* scene_file)
+
+ccv_sift_param_t* myccv_pack_parameters(int noctaves, int nlevels, int up2x, int edge_threshold, int norm_threshold, int peak_threshold)
+{
+	ccv_sift_param_t* res;
+	res = malloc(sizeof(*res));
+	
+	res->noctaves = noctaves;
+	res->nlevels = nlevels;
+	res->up2x = up2x;
+	res->edge_threshold = edge_threshold;
+	res->norm_threshold = norm_threshold;
+	res->peak_threshold = peak_threshold;
+	
+	return res;
+}
+
+/* XXX This will need to go into the typemap */
+/*
+void ccv_sift_param_tPtr_DESTROY(param)
+	ccv_sift_param_t* param
+	CODE:
+	   free( param );
+*/
+void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 {
       Inline_Stack_Vars;
-
       Inline_Stack_Reset;
+
 	ccv_enable_default_cache();
 	ccv_dense_matrix_t* object = 0;
 	ccv_dense_matrix_t* image = 0;
@@ -22,21 +48,12 @@ void sift(char* object_file, char* scene_file)
 	assert(object);
 	ccv_unserialize(scene_file, &image, CCV_SERIAL_GRAY | CCV_SERIAL_ANY_FILE);
 	assert(image);
-	// unsigned int elapsed_time = get_current_time();
-	ccv_sift_param_t param;
-	param.noctaves = 3;
-	param.nlevels = 8;
-	param.up2x = 1;
-	param.edge_threshold = 10;
-	param.norm_threshold = 1;
-	param.peak_threshold = 1;
 	ccv_array_t* obj_keypoints = 0;
 	ccv_dense_matrix_t* obj_desc = 0;
-	ccv_sift(object, &obj_keypoints, &obj_desc, 0, param);
+	ccv_sift(object, &obj_keypoints, &obj_desc, 0, *param);
 	ccv_array_t* image_keypoints = 0;
 	ccv_dense_matrix_t* image_desc = 0;
-	ccv_sift(image, &image_keypoints, &image_desc, 0, param);
-	// elapsed_time = get_current_time() - elapsed_time;
+	ccv_sift(image, &image_keypoints, &image_desc, 0, *param);
 	int i, j, k;
 	int match = 0;
 	for (i = 0; i < obj_keypoints->rnum; i++)
