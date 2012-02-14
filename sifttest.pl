@@ -10,6 +10,8 @@ my $scene  = "IMG_1229_bw_small.png";
 my $object = "IMG_1230_bw_sofa.png";
 #my $scene  = "$ccv_base/samples/scene.png";
 #my $object = "$ccv_base/samples/basmati.png";
+#my $scene  = "ccv/samples/scene.png";
+#my $object = "ccv/samples/basmati.png";
 my $ccv = "$ccv_base/bin/siftmatch.exe";
 
 my @coords = `$ccv $object $scene`;
