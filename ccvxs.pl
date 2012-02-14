@@ -86,10 +86,10 @@ void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 			ccv_keypoint_t* kp = (ccv_keypoint_t*)ccv_array_get(image_keypoints, minj);
 			// Create the new 4-item array
 			AV* res = newAV();
-			av_push( res, newSViv( op->x ));
-			av_push( res, newSViv( op->y ));
-			av_push( res, newSViv( kp->x ));
-			av_push( res, newSViv( kp->y ));
+			av_push( res, newSVnv( op->x ));
+			av_push( res, newSVnv( op->y ));
+			av_push( res, newSVnv( kp->x ));
+			av_push( res, newSVnv( kp->y ));
                         Inline_Stack_Push(sv_2mortal(newRV_noinc((SV*) res)));
 			// printf("%f %f => %f %f\n", op->x, op->y, kp->x, kp->y);
 			match++;
