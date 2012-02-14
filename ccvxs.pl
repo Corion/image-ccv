@@ -116,7 +116,6 @@ CCV
     ;
 
 
-my $ccv_base = "ccv";
 #my $scene  = "onion-skew-240x253.png";
 my $scene  = "IMG_1229_bw_small.png";
 my $object = "IMG_1230_bw_sofa.png";
