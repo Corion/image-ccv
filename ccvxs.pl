@@ -10,10 +10,20 @@ $VERSION = '0.01';
 # TODO: Make ccv_array_t into a class, so automatic destruction works
 # TODO: ccv_sift_param_t currently leaks. Add a DESTROY method.
 
+#include "ccv_amalgamated.c"
 use Inline
     C => <<'CCV',
-#include "ccv.h"
-
+#include "ccv/lib/3rdparty/sha1.h"
+#include "ccv/lib/3rdparty/sha1.c"
+#include "ccv/lib/ccv.h"
+#include "ccv/lib/ccv_basic.c"
+#include "ccv/lib/ccv_algebra.c"
+#include "ccv/lib/ccv_cache.c"
+#include "ccv/lib/ccv_memory.c"
+#include "ccv/lib/ccv_util.c"
+#include "ccv/lib/ccv_io.c"
+#include "ccv/lib/ccv_sift.c"
+/**/
 ccv_sift_param_t* myccv_pack_parameters(int noctaves, int nlevels, int up2x, int edge_threshold, int norm_threshold, int peak_threshold)
 {
 	ccv_sift_param_t* res;
@@ -29,6 +39,27 @@ ccv_sift_param_t* myccv_pack_parameters(int noctaves, int nlevels, int up2x, int
 	return res;
 }
 
+/* Should this just become a tiearray interface?! */
+void ccv_keypoints_to_list(ccv_array_t* keypoints)
+{
+      Inline_Stack_Vars;
+      Inline_Stack_Reset;
+
+      AV* res = newAV();
+      int i;
+      for (i = 0; i < keypoints->rnum; i++) {
+          ccv_keypoint_t* kp = (ccv_keypoint_t*)ccv_array_get(keypoints, i);
+          AV* point = newAV();
+          
+          av_push( point, newSVnv( kp->x ));
+          av_push( point, newSVnv( kp->y ));
+      };
+      
+      Inline_Stack_Push(sv_2mortal(newRV_noinc((SV*) res)));
+      Inline_Stack_Done;
+      return;
+}
+
 /* XXX This will need to go into the typemap */
 /*
 void ccv_sift_param_tPtr_DESTROY(param)
@@ -38,22 +69,27 @@ void ccv_sift_param_tPtr_DESTROY(param)
 */
 void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 {
-      Inline_Stack_Vars;
-      Inline_Stack_Reset;
+        Inline_Stack_Vars;
+        Inline_Stack_Reset;
 
+        printf("start\n");
 	ccv_enable_default_cache();
 	ccv_dense_matrix_t* object = 0;
 	ccv_dense_matrix_t* image = 0;
 	ccv_unserialize(object_file, &object, CCV_SERIAL_GRAY | CCV_SERIAL_ANY_FILE);
+        printf("load1\n");
 	assert(object);
 	ccv_unserialize(scene_file, &image, CCV_SERIAL_GRAY | CCV_SERIAL_ANY_FILE);
 	assert(image);
+        printf("load2\n");
 	ccv_array_t* obj_keypoints = 0;
 	ccv_dense_matrix_t* obj_desc = 0;
 	ccv_sift(object, &obj_keypoints, &obj_desc, 0, *param);
+        printf("sift1\n");
 	ccv_array_t* image_keypoints = 0;
 	ccv_dense_matrix_t* image_desc = 0;
 	ccv_sift(image, &image_keypoints, &image_desc, 0, *param);
+        printf("sift2\n");
 	int i, j, k;
 	int match = 0;
 	for (i = 0; i < obj_keypoints->rnum; i++)
@@ -95,9 +131,8 @@ void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 			match++;
 		}
 	}
-	//printf("%dx%d on %dx%d\n", object->cols, object->rows, image->cols, image->rows);
-	//printf("%d keypoints out of %d are matched\n", match, obj_keypoints->rnum);
-	//printf("elpased time : %d\n", elapsed_time);
+	printf("%dx%d on %dx%d\n", object->cols, object->rows, image->cols, image->rows);
+	printf("%d keypoints out of %d are matched\n", match, obj_keypoints->rnum);
 	ccv_array_free(obj_keypoints);
 	ccv_array_free(image_keypoints);
 	ccv_matrix_free(obj_desc);
@@ -108,40 +143,33 @@ void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 	Inline_Stack_Done;
 	return;
 }
-
+// 2
 CCV
     INC => '-Ic:/Projekte/CCV/ccv/lib',
-    LIBS => '-Lc:/Projekte/CCV/ccv/lib -Lc:/strawberry/c/i686-w64-mingw32/lib -lccv -ljpeg -lpng -lws2_32',
-    CCFLAGS => '-msse2',
+    #LIBS => '-Lc:/Projekte/CCV/ccv/lib -Lc:/strawberry/c/i686-w64-mingw32/lib -lccv -ljpeg -lpng -lws2_32',
+    LIBS => '-ljpeg -lpng -lws2_32',
+    CCFLAGS => ' -mms-bitfields -O2 -msse2',
     ;
 
 
 sub sift {
     my ($object, $scene, $params) = @_;
-    $params ||= {
-	noctaves => 3,
-	nlevels => 5,
-	up2x => 1,
-	edge_threshold => 10,
-	norm_threshold => 0,
-	peak_threshold => 0,
-    };
+    $params ||= {};
     
     my %default = (
-	noctaves => 3,
+	noctaves => 5,
 	nlevels => 5,
 	up2x => 1,
-	edge_threshold => 10,
+	edge_threshold => 5,
 	norm_threshold => 0,
 	peak_threshold => 0,
     );
-    $params = \%default;
     
-    #for (keys %default) {
-   # 	if(! exists $params->{ $_ }) {
-   #         $params->{ $_ } = $default{ $_ }
-   # 	};
-   # };
+    for (keys %default) {
+    	if(! exists $params->{ $_ }) {
+            $params->{ $_ } = $default{ $_ }
+    	};
+    };
     
     if( ref $params ne 'ccv_sift_param_tPtr') {
     	$params = myccv_pack_parameters(
@@ -159,12 +187,22 @@ sub sift {
     myccv_sift( $object, $scene, $params);
 };
 
-#my $scene  = "onion-skew-240x253.png";
 my $scene  = "IMG_1229_bw_small.png";
 my $object = "IMG_1230_bw_sofa.png";
-#my $scene  = "$ccv_base/samples/scene.png";
-#my $object = "$ccv_base/samples/basmati.png";
-my $ccv = "$ccv_base/bin/siftmatch.exe";
+#my $scene  = "ccv/samples/scene.png";
+#my $object = "ccv/samples/basmati.png";
+
+#my $scene  = "IMG_0766_small_bw.png";
+#my $scene = "onion-skew-240x253.png";
+#my $scene = "4585979660_f9a4c39cf5.png";
+#my $scene = "2123317682_9e93436f77.png";
+#my $object = "4585979660_f9a4c39cf5.png";
+#my $object = "onion-240x240.png";
+#my $scene = "IMG_0766-bw.png";
+#my $object = "yapceu-logo200-bw.png";
+
+#my $scene = "IMG_4026_bw.png";
+#my $object = "IMG_4031_bw.png";
 
 my @coords = sift( $object, $scene, );
 print "@$_\n" for @coords;
