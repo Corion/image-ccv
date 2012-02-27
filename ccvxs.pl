@@ -42,7 +42,7 @@ ccv_sift_param_t* myccv_pack_parameters(int noctaves, int nlevels, int up2x, int
 }
 
 /* Should this just become a tiearray interface?! */
-void ccv_keypoints_to_list(ccv_array_t* keypoints)
+void myccv_keypoints_to_list(ccv_array_t* keypoints)
 {
       Inline_Stack_Vars;
       Inline_Stack_Reset;
