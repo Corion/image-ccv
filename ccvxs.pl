@@ -62,36 +62,45 @@ void myccv_keypoints_to_list(ccv_array_t* keypoints)
       return;
 }
 
-/* XXX This will need to go into the typemap */
-/*
-void ccv_sift_param_tPtr_DESTROY(param)
-	ccv_sift_param_t* param
-	CODE:
-	   free( param );
-*/
+void myccv_get_descriptor(char* file, ccv_sift_param_t* param)
+{
+	Inline_Stack_Vars;
+	Inline_Stack_Reset;
+
+	ccv_dense_matrix_t* data = 0;
+	ccv_unserialize(file, &data, CCV_SERIAL_GRAY | CCV_SERIAL_ANY_FILE);
+	assert(data);
+	
+	ccv_array_t* keypoints = 0;
+	ccv_dense_matrix_t* descriptor = 0;
+	ccv_sift(data, &keypoints, &descriptor, 0, *param);
+
+	/* XXX We should blesss those into proper classes for automatic deallocation */
+        Inline_Stack_Push(sv_2mortal(newSVpv((void *)descriptor,0)));
+	Inline_Stack_Push(sv_2mortal(newSVpv((void *)keypoints,0)));
+	
+	Inline_Stack_Done;
+	return;
+}
+
 void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 {
         Inline_Stack_Vars;
         Inline_Stack_Reset;
 
-        printf("start\n");
 	ccv_enable_default_cache();
 	ccv_dense_matrix_t* object = 0;
 	ccv_dense_matrix_t* image = 0;
 	ccv_unserialize(object_file, &object, CCV_SERIAL_GRAY | CCV_SERIAL_ANY_FILE);
-        printf("load1\n");
 	assert(object);
 	ccv_unserialize(scene_file, &image, CCV_SERIAL_GRAY | CCV_SERIAL_ANY_FILE);
 	assert(image);
-        printf("load2\n");
 	ccv_array_t* obj_keypoints = 0;
 	ccv_dense_matrix_t* obj_desc = 0;
 	ccv_sift(object, &obj_keypoints, &obj_desc, 0, *param);
-        printf("sift1\n");
 	ccv_array_t* image_keypoints = 0;
 	ccv_dense_matrix_t* image_desc = 0;
 	ccv_sift(image, &image_keypoints, &image_desc, 0, *param);
-        printf("sift2\n");
 	int i, j, k;
 	int match = 0;
 	for (i = 0; i < obj_keypoints->rnum; i++)
