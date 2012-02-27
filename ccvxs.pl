@@ -250,8 +250,6 @@ $out->rubthrough(
     src_maxy => $object_image->getheight-1,
 );
 
-# Now draw the connections between the sifted points
-#my @points = map { /^([\d.]+) ([\d.]+) => ([\d.]+) ([\d.]+)$/ or die $_; [$1,$2,$3,$4]} grep { /=>/} @coords;
 my @points = @coords;
 
 my $green = Imager::Color->new( 0, 255, 0 );
