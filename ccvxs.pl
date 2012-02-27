@@ -7,8 +7,10 @@ use List::Util qw(max);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
+# TODO: Add face recognition wrapper
 # TODO: Make ccv_array_t into a class, so automatic destruction works
 # TODO: ccv_sift_param_t currently leaks. Add a DESTROY method.
+# TODO: Turn C code into XS
 
 #include "ccv_amalgamated.c"
 use Inline
