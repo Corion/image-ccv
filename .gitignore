@@ -2,3 +2,6 @@ Thumbs.db
 _Inline
 ccv/
 out.png
+blib/
+*.bak
+Makefile
