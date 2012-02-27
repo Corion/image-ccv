@@ -154,19 +154,18 @@ void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 	Inline_Stack_Done;
 	return;
 }
-// 2
+// 14
 CCV
     INC => '-Ic:/Projekte/CCV/ccv/lib',
     #LIBS => '-Lc:/Projekte/CCV/ccv/lib -Lc:/strawberry/c/i686-w64-mingw32/lib -lccv -ljpeg -lpng -lws2_32',
     LIBS => '-ljpeg -lpng -lws2_32',
-    CCFLAGS => ' -mms-bitfields -O2 -msse2',
+    CCFLAGS => ' -mms-bitfields -O2 -msse2 -DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG',
     ;
 
-
-sub sift {
-    my ($object, $scene, $params) = @_;
+sub default_ccv_params {
+    my ($params) = @_;
     $params ||= {};
-    
+
     my %default = (
 	noctaves => 5,
 	nlevels => 5,
