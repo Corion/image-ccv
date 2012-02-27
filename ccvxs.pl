@@ -194,6 +194,26 @@ sub default_ccv_params {
     	);
     };
     
+    $params
+};
+
+sub get_sift_descriptor {
+    my ($filename, $params) = @_;
+    
+    $params = default_ccv_params( $params );
+    
+    my ($keypoints, $descriptor) = myccv_get_descriptor($filename);
+    return {
+    	keypoints => $keypoints,
+    	descriptor => $descriptor,
+    }
+}
+
+sub sift {
+    my ($object, $scene, $params) = @_;
+    
+    $params = default_ccv_params( $params );
+    
     myccv_sift( $object, $scene, $params);
 };
 
