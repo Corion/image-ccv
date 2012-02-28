@@ -370,6 +370,20 @@ sub detect_faces {
 
 1;
 
+=head1 LIMITATIONS
+
+Due to the early development stages, there are several limitations.
+
+=head2 Limited data transfer
+
+Currently, the only mechanism to pass in image data to C<ccv> is by loading
+grayscale PNG or JPEG images from disk. The plan is to also be able to pass
+in image data as scalars or L<Imager> objects.
+
+=head2 Limited memory management
+
+Memory currently is only allocated. Rarely is memory deallocated.
+
 =head1 REPOSITORY
 
 The public repository of this module is 
