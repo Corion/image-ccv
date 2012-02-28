@@ -1,7 +1,9 @@
 package Image::CCV;
 use Exporter 'import';
 use vars qw($VERSION @EXPORT);
-$VERSION = '0.01';
+BEGIN {  # for Inline.pm, below
+	$VERSION = '0.01'; 
+};
 
 @EXPORT = qw(sift detect_faces );
 # TODO: Add face recognition wrapper
@@ -12,17 +14,17 @@ $VERSION = '0.01';
 #include "ccv_amalgamated.c"
 use Inline
     C => <<'CCV',
-#include "ccv/lib/3rdparty/sha1.h"
-#include "ccv/lib/3rdparty/sha1.c"
-#include "ccv/lib/ccv.h"
-#include "ccv/lib/ccv_basic.c"
-#include "ccv/lib/ccv_algebra.c"
-#include "ccv/lib/ccv_cache.c"
-#include "ccv/lib/ccv_memory.c"
-#include "ccv/lib/ccv_util.c"
-#include "ccv/lib/ccv_io.c"
-#include "ccv/lib/ccv_sift.c"
-#include "ccv/lib/ccv_bbf.c"
+#include "ccv-src/lib/3rdparty/sha1.h"
+#include "ccv-src/lib/3rdparty/sha1.c"
+#include "ccv-src/lib/ccv.h"
+#include "ccv-src/lib/ccv_basic.c"
+#include "ccv-src/lib/ccv_algebra.c"
+#include "ccv-src/lib/ccv_cache.c"
+#include "ccv-src/lib/ccv_memory.c"
+#include "ccv-src/lib/ccv_util.c"
+#include "ccv-src/lib/ccv_io.c"
+#include "ccv-src/lib/ccv_sift.c"
+#include "ccv-src/lib/ccv_bbf.c"
 /**/
 
 #include <ctype.h>
@@ -196,6 +198,8 @@ CCV
     #LIBS => '-Lc:/Projekte/CCV/ccv/lib -Lc:/strawberry/c/i686-w64-mingw32/lib -lccv -ljpeg -lpng -lws2_32',
     LIBS => '-ljpeg -lpng -lws2_32',
     CCFLAGS => ' -mms-bitfields -O2 -msse2 -DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG',
+    NAME => __PACKAGE__,
+    VERSION => $VERSION,
     ;
 
 sub default_ccv_params {
