@@ -3,7 +3,7 @@ abstract: unknown
 author:
   - 'Max Maischein <corion@cpan.org>'
 build_requires:
-  Inline: 0.5
+  Inline: 0.50
 configure_requires:
   ExtUtils::MakeMaker: 0
 dynamic_config: 0
@@ -19,6 +19,8 @@ no_index:
     - inc
 requires:
   Imager: 0.78
+  Imager::File::JPEG: 0
+  Imager::File::PNG: 0
   Inline: 0.44
   perl: 5.006
 resources:
