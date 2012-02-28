@@ -9,7 +9,7 @@ use Inline::MakeMaker qw(WriteMakefile);
 #regen_README('lib/WWW/Mechanize/Firefox.pm');
 #regen_EXAMPLES();
 
-warn << ALPHA_WARNING
+warn <<ALPHA_WARNING;
 *** ALPHA VERSION!
 *** Currently Image::CCV blindly assumes that you have
 *** libjpeg and libpng available. If you don't have
@@ -26,13 +26,15 @@ WriteMakefile1(
         },
     },
     BUILD_REQUIRES => {
-                        'Inline' => 0.50, 
+                        'Inline' => '0.50',
     },
     'NAME'          => 'Image::CCV',
     'LICENSE'       => 'perl',
     'VERSION_FROM'  => 'lib/Image/CCV.pm', # finds $VERSION
     'PREREQ_PM'     => {
                        'Imager' => 0.78,
+                       'Imager::File::PNG' => 0, # Our tests want to read/write PNG
+                       'Imager::File::JPEG' => 0, # just to make sure you have libjpeg somewhere
                       }, # e.g., Module::Name => 1.1
     ABSTRACT_FROM   => 'lib/Image/CCV.pm', # retrieve abstract from module
     AUTHOR          => 'Max Maischein <corion@cpan.org>',
