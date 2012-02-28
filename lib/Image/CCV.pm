@@ -6,6 +6,10 @@ BEGIN {  # for Inline.pm, below
 };
 
 @EXPORT = qw(sift detect_faces );
+=head1 NAME
+
+Image::CCV - Crazy-cool Computer Vision bindings for Perl
+=cut
 # TODO: Make ccv_array_t into a class, so automatic destruction works
 # TODO: ccv_sift_param_t currently leaks. Add a DESTROY method.
 # TODO: Add tests
@@ -13,10 +17,10 @@ BEGIN {  # for Inline.pm, below
 # TODO: Add FAQ.pm
 # TODO: Add Examples.pm
 
-
 #include "ccv_amalgamated.c"
 use Inline
     C => <<'CCV',
+/* Make the ccv library conveniently available */
 #include "ccv-src/lib/3rdparty/sha1.h"
 #include "ccv-src/lib/3rdparty/sha1.c"
 #include "ccv-src/lib/ccv.h"
@@ -28,7 +32,6 @@ use Inline
 #include "ccv-src/lib/ccv_io.c"
 #include "ccv-src/lib/ccv_sift.c"
 #include "ccv-src/lib/ccv_bbf.c"
-/**/
 
 #include <ctype.h>
 
@@ -260,3 +263,41 @@ sub sift {
     myccv_sift( $object, $scene, $params);
 };
 1;
+
+=head1 REPOSITORY
+
+The public repository of this module is 
+L<http://github.com/Corion/image-ccv>.
+
+=head1 SUPPORT
+
+The public support forum of this module is
+L<http://perlmonks.org/>.
+
+=head1 TALKS
+
+I've given one lightning talk about this module at Perl conferences:
+
+L<http://corion.net/talks/Image-CCV-lightning/Image-CCV-lightning.html|German Perl Workshop, German>
+
+=head1 BUG TRACKER
+
+Please report bugs in this module via the RT CPAN bug queue at
+L<https://rt.cpan.org/Public/Dist/Display.html?Name=Image-CCV>
+or via mail to L<image-ccv-Bugs@rt.cpan.org>.
+
+=head1 AUTHOR
+
+Max Maischein C<corion@cpan.org>
+
+=head1 COPYRIGHT (c)
+
+Copyright 2009-2012 by Max Maischein C<corion@cpan.org>.
+
+=head1 LICENSE
+
+This module is released under the same terms as Perl itself. The CCV library
+distributed with it comes with its own license(s). Please study these
+before redistributing.
+
+=cut
