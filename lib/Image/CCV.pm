@@ -32,10 +32,6 @@ the API as I go along.
 
 # TODO: Make ccv_array_t into a class, so automatic destruction works
 # TODO: ccv_sift_param_t currently leaks. Add a DESTROY method.
-# TODO: Add tests
-# TODO: Add Troubleshooting.pm
-# TODO: Add FAQ.pm
-# TODO: Add Examples.pm
 
 #include "ccv_amalgamated.c"
 use Inline
