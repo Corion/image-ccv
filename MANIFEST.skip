@@ -18,3 +18,5 @@ CVS/
 ^cover_db/
 ^db/
 ^firefox-versions/
+Thumbs.db$
+.*.inl$

@@ -114,6 +114,7 @@ ccv-src/test/opencv/sobel_test.cpp
 ccv-src/test/sift_test.c
 ccv-src/test/sparse_matrix_test.c
 ccv-src/test/util.tests.c
+Changes
 images/2123317682_9e93436f77.png
 images/4585979660_f9a4c39cf5.png
 images/face-mass.png
@@ -133,7 +134,6 @@ images/onion-skew-240x253.png
 images/out-markkeating-yapc-riga.png
 images/out-seitl-verschiebung.png
 images/out-sofa-thumb.png
-images/out.png
 images/yapceu-logo200-bw.png
 lib/Image/CCV.pm
 lib/Image/CCV/facedetect/cascade.txt
@@ -169,4 +169,3 @@ t/99-unix-text.t
 t/99-versions.t
 tools/amalgamate.pl
 typemap
-yapceu-logo200.gif
