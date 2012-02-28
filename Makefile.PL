@@ -9,6 +9,13 @@ use Inline::MakeMaker qw(WriteMakefile);
 #regen_README('lib/WWW/Mechanize/Firefox.pm');
 #regen_EXAMPLES();
 
+warn << ALPHA_WARNING
+*** ALPHA VERSION!
+*** Currently Image::CCV blindly assumes that you have
+*** libjpeg and libpng available. If you don't have
+*** them  available, things will simply fail badly for you.
+ALPHA_WARNING
+
 my @tests = map { glob $_ } 't/*.t', 't/*/*.t';
 
 WriteMakefile1(
