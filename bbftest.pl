@@ -10,7 +10,7 @@ use Image::CCV qw(detect_faces);
 #my $scene  = "images/IMG_0766-bw.png";
 my $scene = "images/IMG_0732_bw.png";
 
-my @coords = detect_faces( $scene, 'ccv/samples/face' );
+my @coords = detect_faces( $scene );
 #print "@$_\n" for @coords;
 
 my $out = Imager->new( file => $scene );

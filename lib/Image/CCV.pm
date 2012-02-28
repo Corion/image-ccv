@@ -1,5 +1,6 @@
 package Image::CCV;
 use Exporter 'import';
+use Carp qw(croak);
 use vars qw($VERSION @EXPORT);
 BEGIN {  # for Inline.pm, below
 	$VERSION = '0.01'; 
@@ -9,7 +10,21 @@ BEGIN {  # for Inline.pm, below
 =head1 NAME
 
 Image::CCV - Crazy-cool Computer Vision bindings for Perl
-=cut
+
+=head1 SYNOPSIS
+
+    use Image::CCV qw(detect_faces);
+
+    my $scene = "image-with-faces.png";
+
+    my @coords = detect_faces( $scene );
+    print "@$_\n" for @coords;
+
+=head1 ALPHA WARNING
+This code is very, very rough. It leaks memory left and right
+and the API is very much in flux. But as I got easy results using
+this code already, I am releasing it as is and will improve it and
+the API as I go along.=cut
 # TODO: Make ccv_array_t into a class, so automatic destruction works
 # TODO: ccv_sift_param_t currently leaks. Add a DESTROY method.
 # TODO: Add tests
@@ -36,7 +51,7 @@ use Inline
 #include <ctype.h>
 
 void
-detect_faces(char* filename, char* training_data)
+myccv_detect_faces(char* filename, char* training_data)
 {
 	Inline_Stack_Vars;
 	Inline_Stack_Reset;
@@ -198,10 +213,8 @@ void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 	Inline_Stack_Done;
 	return;
 }
-// 14
 CCV
-    INC => '-Ic:/Projekte/CCV/ccv/lib',
-    #LIBS => '-Lc:/Projekte/CCV/ccv/lib -Lc:/strawberry/c/i686-w64-mingw32/lib -lccv -ljpeg -lpng -lws2_32',
+    #INC => '-Ic:/Projekte/CCV/ccv/lib',
     LIBS => '-ljpeg -lpng -lws2_32',
     CCFLAGS => ' -mms-bitfields -O2 -msse2 -DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG',
     NAME => __PACKAGE__,
@@ -262,7 +275,19 @@ sub sift {
     
     myccv_sift( $object, $scene, $params);
 };
-1;
+
+sub detect_faces {
+    my ($filename, $training_data_path) = @_;
+    
+    if(! $training_data_path ) {
+    	($training_data_path = $INC{ "Image/CCV.pm" }) =~ s!.pm$!!;
+    	$training_data_path .= '/facedetect';
+    };
+    
+    if( ! -d $training_data_path ) {
+    	croak "Training data path '$training_data_path' does not seem to be a directory!";    
+    };
+    myccv_detect_faces($filename, $training_data_path);}1;
 
 =head1 REPOSITORY
 
