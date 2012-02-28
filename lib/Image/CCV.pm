@@ -6,7 +6,8 @@ BEGIN {  # for Inline.pm, below
 	$VERSION = '0.01'; 
 };
 
-@EXPORT = qw(sift detect_faces );
+@EXPORT = qw(sift detect_faces );
+
 =head1 NAME
 
 Image::CCV - Crazy-cool Computer Vision bindings for Perl
@@ -21,10 +22,14 @@ Image::CCV - Crazy-cool Computer Vision bindings for Perl
     print "@$_\n" for @coords;
 
 =head1 ALPHA WARNING
-This code is very, very rough. It leaks memory left and right
+
+This code is very, very rough. It leaks memory left and right
 and the API is very much in flux. But as I got easy results using
 this code already, I am releasing it as is and will improve it and
-the API as I go along.=cut
+the API as I go along.
+
+=cut
+
 # TODO: Make ccv_array_t into a class, so automatic destruction works
 # TODO: ccv_sift_param_t currently leaks. Add a DESTROY method.
 # TODO: Add tests
@@ -287,7 +292,10 @@ sub detect_faces {
     if( ! -d $training_data_path ) {
     	croak "Training data path '$training_data_path' does not seem to be a directory!";    
     };
-    myccv_detect_faces($filename, $training_data_path);}1;
+    myccv_detect_faces($filename, $training_data_path);
+}
+
+1;
 
 =head1 REPOSITORY
 
