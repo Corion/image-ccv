@@ -77,7 +77,6 @@ ccv-src/samples/face/stage-8.txt
 ccv-src/samples/face/stage-9.txt
 ccv-src/samples/nature.png
 ccv-src/samples/scene.png
-ccv-src/samples/Thumbs.db
 ccv-src/test/algebra.tests.c
 ccv-src/test/basic.tests.c
 ccv-src/test/case.c
@@ -117,7 +116,6 @@ ccv-src/test/sparse_matrix_test.c
 ccv-src/test/util.tests.c
 images/2123317682_9e93436f77.png
 images/4585979660_f9a4c39cf5.png
-images/face-mass-thumb.png
 images/face-mass.png
 images/face_IMG_0762_bw.png
 images/IMG_0732_bw.png
@@ -136,7 +134,6 @@ images/out-markkeating-yapc-riga.png
 images/out-seitl-verschiebung.png
 images/out-sofa-thumb.png
 images/out.png
-images/Thumbs.db
 images/yapceu-logo200-bw.png
 lib/Image/CCV.pm
 lib/Image/CCV/facedetect/cascade.txt
@@ -170,7 +167,6 @@ t/99-pod.t
 t/99-todo.t
 t/99-unix-text.t
 t/99-versions.t
-Thumbs.db
 tools/amalgamate.pl
 typemap
 yapceu-logo200.gif
