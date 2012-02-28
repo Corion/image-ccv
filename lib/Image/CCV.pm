@@ -222,7 +222,46 @@ CCV
     VERSION => $VERSION,
     ;
 
-sub default_ccv_params {
+=head1 FUNCTIONS
+
+=cut
+
+=head2 C<< default_sift_params(%options) >>
+
+Sets up the parameter block for C<< sift() >> and related routines. Valid
+keys for C<%options> are:
+
+=over 4
+
+=item *
+
+noctaves - number of octaves
+
+=item *
+
+nlevels - number of levels
+
+=item *
+
+up2x - boolean, whether to upscale
+
+=item *
+
+edge_threshold - edge threshold
+
+=item *
+
+norm_threshold - norm threshold
+
+=item *
+
+peak_threshold - peak threshold
+
+=back
+
+=cut
+
+sub default_sift_params {
     my ($params) = @_;
     $params ||= {};
 
@@ -257,10 +296,19 @@ sub default_ccv_params {
     $params
 };
 
+=head2 C<< get_sift_descriptor( $image, $parameters ); >>
+
+    my $desc = get_sift_descriptor('image.png');
+    print for @{ $desc->{keypoints} };
+
+B<Not yet implemented>
+
+=cut
+
 sub get_sift_descriptor {
     my ($filename, $params) = @_;
     
-    $params = default_ccv_params( $params );
+    $params = default_sift_params( $params );
     
     my ($keypoints, $descriptor) = myccv_get_descriptor($filename);
     return {
@@ -269,13 +317,42 @@ sub get_sift_descriptor {
     }
 }
 
+=head2 C<< sift( $object, $scene, $params ) >>
+
+    my @common_features = sift( 'object.png', 'sample.png' );
+
+Returns a list of 4-element arrayrefs. The elements are:
+
+    object-x
+    object-y
+    scene-x
+    scene-y
+
+The parameters get decoded by C<get_default_params>.
+
+=cut
+
 sub sift {
     my ($object, $scene, $params) = @_;
     
-    $params = default_ccv_params( $params );
+    $params = default_sift_params( $params );
     
     myccv_sift( $object, $scene, $params);
 };
+
+=head2 C<< detect_faces( $png_file ) >>
+
+    my @faces = detect_faces('sample.png');
+
+Returns a list of 5-element arrayrefs. The elements are:
+
+    x
+    y
+    width
+    height
+    confidence
+
+=cut
 
 sub detect_faces {
     my ($filename, $training_data_path) = @_;
