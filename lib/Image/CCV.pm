@@ -30,13 +30,16 @@ the API as I go along.
 
 =cut
 
+# TODO: Make -lws2_32 optional
 # TODO: Make ccv_array_t into a class, so automatic destruction works
 # TODO: ccv_sift_param_t currently leaks. Add a DESTROY method.
+# TODO: Turn C structs into Perl classes for memory management
 
 #include "ccv_amalgamated.c"
 use Inline
     C => <<'CCV',
 /* Make the ccv library conveniently available */
+#include <stdint.h>
 #include "ccv-src/lib/3rdparty/sha1.h"
 #include "ccv-src/lib/3rdparty/sha1.c"
 #include "ccv-src/lib/ccv.h"
