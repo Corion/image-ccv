@@ -1,5 +1,4 @@
 .gitignore
-bbftest.pl
 ccv-src/.gitignore
 ccv-src/bin/bbfcreate.c
 ccv-src/bin/bbfdetect.c
@@ -115,6 +114,8 @@ ccv-src/test/sift_test.c
 ccv-src/test/sparse_matrix_test.c
 ccv-src/test/util.tests.c
 Changes
+examples/bbftest.pl
+examples/sifttest.pl
 images/2123317682_9e93436f77.png
 images/4585979660_f9a4c39cf5.png
 images/face-mass.png
@@ -158,8 +159,8 @@ MANIFEST			This list of files
 MANIFEST.skip
 MYMETA.json
 MYMETA.yml
-sifttest.pl
 t/00-load.t
+t/01-c_structs.t
 t/99-changes.t
 t/99-examples.t
 t/99-manifest.t
