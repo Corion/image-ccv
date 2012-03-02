@@ -34,6 +34,7 @@ the API as I go along.
 # TODO: Make ccv_array_t into a class, so automatic destruction works
 # TODO: ccv_sift_param_t currently leaks. Add a DESTROY method.
 # TODO: Turn C structs into Perl classes for memory management
+#       BBF parameters: ccv_bbf_param_t
 
 #include "ccv_amalgamated.c"
 use Inline
@@ -215,7 +216,7 @@ void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 	return;
 }
 CCV
-    #INC => '-Ic:/Projekte/CCV/ccv/lib',
+    INC => '-Ic:/Projekte/CCV/ccv/lib',
     LIBS => '-ljpeg -lpng -lws2_32',
     CCFLAGS => ' -mms-bitfields -O2 -msse2 -DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG',
     NAME => __PACKAGE__,
