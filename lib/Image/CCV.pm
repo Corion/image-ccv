@@ -198,12 +198,9 @@ void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 			av_push( res, newSVnv( kp->x ));
 			av_push( res, newSVnv( kp->y ));
                         Inline_Stack_Push(sv_2mortal(newRV_noinc((SV*) res)));
-			// printf("%f %f => %f %f\n", op->x, op->y, kp->x, kp->y);
 			match++;
 		}
 	}
-	printf("%dx%d on %dx%d\n", object->cols, object->rows, image->cols, image->rows);
-	printf("%d keypoints out of %d are matched\n", match, obj_keypoints->rnum);
 	ccv_array_free(obj_keypoints);
 	ccv_array_free(image_keypoints);
 	ccv_matrix_free(obj_desc);
