@@ -47,10 +47,6 @@ ccv-src/lib/io/_ccv_io_binary.c
 ccv-src/lib/io/_ccv_io_bmp.c
 ccv-src/lib/io/_ccv_io_libjpeg.c
 ccv-src/lib/io/_ccv_io_libpng.c
-ccv-src/lib/libccv.a
-ccv-src/lib/make.bat
-ccv-src/lib/makefile
-ccv-src/lib/Makefile.mk
 ccv-src/README
 ccv-src/samples/basmati.png
 ccv-src/samples/blackbox.png
