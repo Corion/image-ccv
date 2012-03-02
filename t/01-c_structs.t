@@ -11,5 +11,5 @@ my $module;
 
 use Image::CCV;
 
-my $param_block = Image::CCV::myccv_pack_parameters();
+my $param_block = Image::CCV::myccv_pack_parameters(0,0,0,0,0,0);
 is ref $param_block, 'ccv_sift_param_tPtr', "Parameter block class";
