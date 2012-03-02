@@ -380,6 +380,12 @@ Currently, the only mechanism to pass in image data to C<ccv> is by loading
 grayscale PNG or JPEG images from disk. The plan is to also be able to pass
 in image data as scalars or L<Imager> objects.
 
+=head2 Limited result storage
+
+Currently, there is no implemented way to store the results of applying
+the SIFT algorithm to an image. This makes searching several images for the
+same object slow and inconvenient.
+
 =head2 Limited memory management
 
 Memory currently is only allocated. Rarely is memory deallocated.
@@ -412,7 +418,7 @@ Max Maischein C<corion@cpan.org>
 
 =head1 COPYRIGHT (c)
 
-Copyright 2009-2012 by Max Maischein C<corion@cpan.org>.
+Copyright 2012 by Max Maischein C<corion@cpan.org>.
 
 =head1 LICENSE
 
