@@ -14,3 +14,4 @@ CCV.c
 *.o
 dll.base
 dll.exp
+.releaserc
