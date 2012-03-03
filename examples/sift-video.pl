@@ -10,6 +10,21 @@ use File::Basename qw(dirname);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
+=head1 NAME
+
+sift-video.pl
+
+=head1 WARNING
+
+This program currently does not work. It paints the keypoints onto
+the resulting video, but there are far too many keypoints between
+two adjactent frames.
+
+Maybe some averaging over (say) 10 frames or something like that could
+reduce the amount of data.
+
+=cut
+
 GetOptions (
     'b|ffmpeg:s' => \my $ffmpeg_binary,
     'f|frames:s' => \my $frames,
@@ -18,7 +33,6 @@ GetOptions (
 $frames ||= 1; # one frame lookbehind
 $ffmpeg_binary||= 'ffmpeg';
 
-my $scene  = "images/IMG_1229_bw_small.png";
 my $workdir;
 
 # Get number of frames in input video

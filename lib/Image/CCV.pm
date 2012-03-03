@@ -139,7 +139,7 @@ void myccv_get_descriptor(char* file, ccv_sift_param_t* param)
 	ccv_dense_matrix_t* descriptor = 0;
 	ccv_sift(data, &keypoints, &descriptor, 0, *param);
 
-	/* XXX We should blesss those into proper classes for automatic deallocation */
+	/* TODO We should blesss those into proper classes for automatic deallocation */
         Inline_Stack_Push(sv_2mortal(newSVpv((void *)descriptor,0)));
 	Inline_Stack_Push(sv_2mortal(newSVpv((void *)keypoints,0)));
 	
@@ -215,9 +215,10 @@ void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 	Inline_Stack_Done;
 	return;
 }
+// 1
 CCV
-    INC => '-Ic:/Projekte/CCV/ccv/lib',
-    LIBS => '-ljpeg -lpng -lws2_32',
+    #INC => '-Ic:/Projekte/CCV/ccv/lib',
+    LIBS => '-ljpeg -lpng',
     CCFLAGS => ' -mms-bitfields -O2 -msse2 -DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG',
     NAME => __PACKAGE__,
     VERSION => $VERSION,

@@ -10,20 +10,6 @@ $VERSION = '0.01';
 
 my $scene  = "images/IMG_1229_bw_small.png";
 my $object = "images/IMG_1230_bw_sofa.png";
-#my $scene  = "ccv/samples/scene.png";
-#my $object = "ccv/samples/basmati.png";
-
-#my $scene  = "IMG_0766_small_bw.png";
-#my $scene = "onion-skew-240x253.png";
-#my $scene = "4585979660_f9a4c39cf5.png";
-#my $scene = "2123317682_9e93436f77.png";
-#my $object = "4585979660_f9a4c39cf5.png";
-#my $object = "onion-240x240.png";
-#my $scene = "IMG_0766-bw.png";
-#my $object = "yapceu-logo200-bw.png";
-
-#my $scene = "IMG_4026_bw.png";
-#my $object = "IMG_4031_bw.png";
 
 my @coords = sift( $object, $scene, );
 print "@$_\n" for @coords;
