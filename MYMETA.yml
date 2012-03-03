@@ -3,7 +3,9 @@ abstract: 'Crazy-cool Computer Vision bindings for Perl'
 author:
   - 'Max Maischein <corion@cpan.org>'
 build_requires:
-  Inline: 0.50
+  Carp: 0
+  DynaLoader: 0
+  Exporter: 0
 configure_requires:
   ExtUtils::MakeMaker: 0
 dynamic_config: 0

@@ -132,6 +132,7 @@ images/out-markkeating-yapc-riga.png
 images/out-seitl-verschiebung.png
 images/out-sofa-thumb.png
 images/yapceu-logo200-bw.png
+CCV.xs
 lib/Image/CCV.pm
 lib/Image/CCV/facedetect/cascade.txt
 lib/Image/CCV/facedetect/stage-0.txt

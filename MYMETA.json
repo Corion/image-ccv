@@ -22,7 +22,9 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "Inline" : "0.50"
+            "Carp" : 0,
+            "DynaLoader" : 0,
+            "Exporter" : 0
          }
       },
       "configure" : {
