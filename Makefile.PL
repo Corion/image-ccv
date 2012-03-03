@@ -1,7 +1,7 @@
 # -*- mode: perl; c-basic-offset: 4; indent-tabs-mode: nil; -*-
 
 use strict;
-use Inline::MakeMaker qw(WriteMakefile);
+use ExtUtils::MakeMaker qw(WriteMakefile);
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
@@ -26,7 +26,9 @@ WriteMakefile1(
         },
     },
     BUILD_REQUIRES => {
-                        'Inline' => '0.50',
+                        'DynaLoader' => '0',
+                        'Exporter'   => '0',
+                        'Carp'       => '0',
     },
     'NAME'          => 'Image::CCV',
     'LICENSE'       => 'perl',
@@ -36,6 +38,16 @@ WriteMakefile1(
                        'Imager::File::PNG' => 0, # Our tests want to read/write PNG
                        'Imager::File::JPEG' => 0, # just to make sure you have libjpeg somewhere
                       }, # e.g., Module::Name => 1.1
+    'TYPEMAPS' => [
+        #'C:\\strawberry\\perl\\lib\\ExtUtils\\typemap',
+        'typemap'
+    ],
+    'CCFLAGS' => '  -mms-bitfields -O2 -msse2 -DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG',
+    #'INC' => '-I"C:/Projekte/CCV"',
+    'LIBS' => [
+    '-ljpeg -lpng'
+    ],
+    'VERSION' => '0.01',
     ABSTRACT_FROM   => 'lib/Image/CCV.pm', # retrieve abstract from module
     AUTHOR          => 'Max Maischein <corion@cpan.org>',
     test            => { TESTS => join( ' ', @tests ) },

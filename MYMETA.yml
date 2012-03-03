@@ -21,7 +21,6 @@ requires:
   Imager: 0.78
   Imager::File::JPEG: 0
   Imager::File::PNG: 0
-  Inline: 0.44
   perl: 5.006
 resources:
   repository: http://github.com/Corion/image-ccv

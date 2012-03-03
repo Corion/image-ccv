@@ -9,3 +9,8 @@ Makefile.old
 pm_to_blib
 CCV.def
 CCV.inl
+CCV.c
+*.bs
+*.o
+dll.base
+dll.exp
