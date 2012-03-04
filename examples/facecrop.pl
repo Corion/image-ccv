@@ -7,6 +7,9 @@ use Imager;
 use Imager::Fill;
 use Image::CCV qw(detect_faces);
 
+use vars qw($VERSION);
+$VERSION = '0.02';
+
 =head1 NAME
 
 facecrop.pl - create crop from image using the largest face area

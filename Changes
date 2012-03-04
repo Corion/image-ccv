@@ -3,5 +3,12 @@
 # TODO: Add Examples.pm
 # TODO: Document examples
 
+0.02 20120304
+    . Fix build problem on Solaris x86
+      The CCFLAGS were not passed through but overwritten.
+    . Add List::Util to the prerequisites
+    . Add tool for automatic extraction of face-thumbnails
+    . Removed images from distribution
+
 0.01 20120303
     . Released unto an unsuspecting world
