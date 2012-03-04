@@ -2,6 +2,7 @@
 
 use strict;
 use ExtUtils::MakeMaker qw(WriteMakefile);
+use Config;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
@@ -17,6 +18,9 @@ warn <<ALPHA_WARNING;
 ALPHA_WARNING
 
 my @tests = map { glob $_ } 't/*.t', 't/*/*.t';
+
+my $ccflags = $ENV{CCFLAGS}
+            || $Config::Config{ ccflags };
 
 WriteMakefile1(
     MIN_PERL_VERSION => '5.006',
@@ -43,7 +47,7 @@ WriteMakefile1(
         #'C:\\strawberry\\perl\\lib\\ExtUtils\\typemap',
         'typemap'
     ],
-    'CCFLAGS' => '  -mms-bitfields -O2 -msse2 -DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG',
+    'CCFLAGS' => "-mms-bitfields -O2 -msse2 -DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG $ccflags",
     #'INC' => '-I"C:/Projekte/CCV"',
     'LIBS' => [
     '-ljpeg -lpng'
