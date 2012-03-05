@@ -10,6 +10,8 @@ use Config;
 #regen_README('lib/WWW/Mechanize/Firefox.pm');
 #regen_EXAMPLES();
 
+# TODO: Add command line switches in addition to %ENV and %Config
+
 warn <<ALPHA_WARNING;
 *** ALPHA VERSION!
 *** Currently Image::CCV blindly assumes that you have
@@ -20,7 +22,20 @@ ALPHA_WARNING
 my @tests = map { glob $_ } 't/*.t', 't/*/*.t';
 
 my $ccflags = $ENV{CCFLAGS}
-            || $Config::Config{ ccflags };
+            || $Config::Config{ ccflags }
+            ;
+
+my $LIBS = $ENV{LIBS} 
+           || '-ljpeg -lpng'
+           ;
+
+my @LIBS = ($LIBS);
+
+if( $^O =~ /mswin32/i ) {
+    $LIBS = "$LIBS -LC:\\strawberry\\c\\i686-w64-mingw32\\lib -lws2_32";
+    #push @LIBS, ":nosearch $LIBS -lws2_32";
+};
+warn "LIBS: $LIBS\n";
 
 WriteMakefile1(
     MIN_PERL_VERSION => '5.006',
@@ -47,14 +62,20 @@ WriteMakefile1(
         #'C:\\strawberry\\perl\\lib\\ExtUtils\\typemap',
         'typemap'
     ],
-    'CCFLAGS' => "-mms-bitfields -O2 -msse2 -DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG $ccflags",
+    'DEFINE'  => '-DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG',
+    'OBJECT'  => '$(O_FILES)', # link all the C files too
+    'CCFLAGS' => "-msse2 -s -O2 -fno-strict-aliasing -mms-bitfields -DPERL_IMPLICIT_CONTEXT",# $ccflags",
     #'INC' => '-I"C:/Projekte/CCV"',
     'LIBS' => [
-    '-ljpeg -lpng'
+        $LIBS,
     ],
-    'VERSION' => '0.01',
+    #LDDLFLAGS => "$Config{lddlflags}",
+    #'VERSION' => '0.01',
     ABSTRACT_FROM   => 'lib/Image/CCV.pm', # retrieve abstract from module
     AUTHOR          => 'Max Maischein <corion@cpan.org>',
+    #dynamic_lib => {
+    #    OTHERDLFLAGS => $LIBS,
+    #},
     test            => { TESTS => join( ' ', @tests ) },
 );
 
