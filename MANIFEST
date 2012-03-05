@@ -7,9 +7,7 @@ ccv-src/bin/bbffmt.c
 ccv-src/bin/bbfvldtr.rb
 ccv-src/bin/convert.c
 ccv-src/bin/dpmdetect.c
-ccv-src/bin/make.bat
 ccv-src/bin/makefile
-ccv-src/bin/Makefile.mk
 ccv-src/bin/siftdraw.rb
 ccv-src/bin/siftmatch.c
 ccv-src/bin/swtcreate.c
@@ -27,8 +25,6 @@ ccv-src/js/index.html
 ccv-src/js/loader.php
 ccv-src/lib/3rdparty/sha1.c
 ccv-src/lib/3rdparty/sha1.h
-ccv-src/lib/ccv.def
-ccv-src/lib/ccv.dll
 ccv-src/lib/ccv.h
 ccv-src/lib/ccv_algebra.c
 ccv-src/lib/ccv_basic.c
@@ -110,7 +106,8 @@ ccv-src/test/sift_test.c
 ccv-src/test/sparse_matrix_test.c
 ccv-src/test/util.tests.c
 Changes
-examples/bbftest.pl
+examples/facetest.pl
+examples/facecrop.pl
 examples/sifttest.pl
 CCV.xs
 ccvmain.c
