@@ -3,9 +3,10 @@
 # TODO: Add Examples.pm
 # TODO: Document examples
 
-0.02 20120304
-    . Fix build problem on Solaris x86
+0.02 20120305
+    . Try to fix build problem on Solaris x86
       The CCFLAGS were not passed through but overwritten.
+    . Moved C code into .c file and only link to it from XS
     . Add List::Util to the prerequisites
     . Add tool for automatic extraction of face-thumbnails
     . Removed images from distribution
