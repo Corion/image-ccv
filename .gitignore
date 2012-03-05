@@ -11,9 +11,11 @@ CCV.def
 CCV.inl
 CCV.c
 *.bs
+*.old
 *.o
 dll.base
 dll.exp
 .releaserc
 Image-CCV-*.tar.gz
 Image-CCV-*/
+MYMETA.*
