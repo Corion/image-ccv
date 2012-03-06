@@ -3,7 +3,7 @@
 # TODO: Add Examples.pm
 # TODO: Document examples
 
-0.02 20120305
+0.02 20120306
     . Try to fix build problem on Solaris x86
       The CCFLAGS were not passed through but overwritten.
     . Moved C code into .c file and only link to it from XS
