@@ -32,6 +32,7 @@ my $LIBS = $ENV{LIBS}
 my @LIBS = ($LIBS);
 
 if( $^O =~ /mswin32/i ) {
+    # I'm sorry, but I don't know how else get -lws2_32 to link :-/
     $LIBS = "$LIBS -LC:\\strawberry\\c\\i686-w64-mingw32\\lib -lws2_32";
     #push @LIBS, ":nosearch $LIBS -lws2_32";
 };
@@ -64,7 +65,8 @@ WriteMakefile1(
     ],
     'DEFINE'  => '-DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG',
     'OBJECT'  => '$(O_FILES)', # link all the C files too
-    'CCFLAGS' => "-msse2 -s -O2 -fno-strict-aliasing -mms-bitfields -DPERL_IMPLICIT_CONTEXT",# $ccflags",
+    #'CCFLAGS' => "-msse2 -s -O2 -fno-strict-aliasing -mms-bitfields -DPERL_IMPLICIT_CONTEXT",# $ccflags",
+    'CCFLAGS' => "-msse2 -mms-bitfields $ccflags",
     #'INC' => '-I"C:/Projekte/CCV"',
     'LIBS' => [
         $LIBS,
