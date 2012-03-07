@@ -221,7 +221,7 @@ L<http://perlmonks.org/>.
 
 I've given one lightning talk about this module at Perl conferences:
 
-L<http://corion.net/talks/Image-CCV-lightning/Image-CCV-lightning.html|German Perl Workshop, German>
+L<German Perl Workshop, German|http://corion.net/talks/Image-CCV-lightning/Image-CCV-lightning-talk.de.html>
 
 =head1 BUG TRACKER
 
