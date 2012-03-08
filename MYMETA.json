@@ -35,8 +35,6 @@
       "runtime" : {
          "requires" : {
             "Imager" : "0.78",
-            "Imager::File::JPEG" : 0,
-            "Imager::File::PNG" : 0,
             "List::Util" : 0,
             "perl" : "5.006"
          }
