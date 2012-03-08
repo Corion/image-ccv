@@ -34,7 +34,7 @@ sub main {
     open my $fh, '<', $module_pm
         or die "Couldn't read '$module_pm': $!";
     my ($version) = map { /^\s*\$VERSION\s*=\s*['"]?([\d\.\_]+)['"]?;\s*$/ ? $1 : () } <$fh>;
-    warn "Generating examples for $version";
+    #warn "Generating examples for $version\n";
     $version
         or die "Couldn't find version in $module_pm: $@";
 
