@@ -80,7 +80,7 @@ WriteMakefile1(
     'DEFINE'  => '-DHAVE_ZLIB -DHAVE_LIBJPEG -DHAVE_LIBPNG',
     'OBJECT'  => '$(O_FILES)', # link all the C files too
     #'CCFLAGS' => "-msse2 -mms-bitfields $ccflags",
-    'CCFLAGS' => "-msse2 $ccflags",
+    'CCFLAGS' => $ccflags,
     #'INC' => '-I"C:/Projekte/CCV"',
     'LIBS' => [
         $LIBS,
