@@ -16,5 +16,6 @@ CCV.c
 dll.base
 dll.exp
 .releaserc
+Image-CCV-*.tar
 Image-CCV-*.tar.gz
 Image-CCV-*/
