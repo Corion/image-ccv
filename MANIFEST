@@ -7,7 +7,9 @@ ccv-src/bin/bbffmt.c
 ccv-src/bin/bbfvldtr.rb
 ccv-src/bin/convert.c
 ccv-src/bin/dpmdetect.c
+ccv-src/bin/make.bat
 ccv-src/bin/makefile
+ccv-src/bin/Makefile.mk
 ccv-src/bin/siftdraw.rb
 ccv-src/bin/siftmatch.c
 ccv-src/bin/swtcreate.c
@@ -105,12 +107,13 @@ ccv-src/test/opencv/sobel_test.cpp
 ccv-src/test/sift_test.c
 ccv-src/test/sparse_matrix_test.c
 ccv-src/test/util.tests.c
-Changes
-examples/facetest.pl
-examples/facecrop.pl
-examples/sifttest.pl
 CCV.xs
 ccvmain.c
+Changes
+examples/facecrop.pl
+examples/facetest.pl
+examples/sift-video.pl
+examples/sifttest.pl
 INLINE_CCV.h
 lib/Image/CCV.pm
 lib/Image/CCV/facedetect/cascade.txt
@@ -137,6 +140,7 @@ MYMETA.json
 MYMETA.yml
 t/00-load.t
 t/01-c_structs.t
+t/02-detect-faces.t
 t/99-changes.t
 t/99-examples.t
 t/99-manifest.t
@@ -144,5 +148,6 @@ t/99-pod.t
 t/99-todo.t
 t/99-unix-text.t
 t/99-versions.t
+t/face_IMG_0762_bw_small.png
 tools/amalgamate.pl
 typemap
