@@ -1,11 +1,14 @@
 # TODO: Add Troubleshooting.pm
 # TODO: Add FAQ.pm
-# TODO: Add Examples.pm
 # TODO: Document examples
-# TODO: Look at Net::Pcap for library detection?!
 
 0.03 2012xxxx
     . Fixed link to lightning talk presenting the module
+    . Use Devel::CheckLib to check for libpng, jpeglib and
+      (on non-Win32) alloca.h
+    . We always force -msse2 currently. This likely does not work on
+      MSVC.
+    . Added examples as Examples.pm
 
 0.02 20120306
     . Try to fix build problem on Solaris x86

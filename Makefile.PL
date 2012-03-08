@@ -70,8 +70,6 @@ WriteMakefile1(
     'VERSION_FROM'  => $module_pm,
     'PREREQ_PM'     => {
                        'Imager' => 0.78,
-                       'Imager::File::PNG' => 0, # Our tests want to read/write PNG
-                       'Imager::File::JPEG' => 0, # just to make sure you have libjpeg somewhere
                         'List::Util' => '0', # just for the example programs
                       }, # e.g., Module::Name => 1.1
     'TYPEMAPS' => [
