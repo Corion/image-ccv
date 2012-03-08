@@ -20,10 +20,52 @@ facecrop.pl - create crop from image using the largest face area
 
   facecrop.pl filename.png -o thumb_filename.png
 
+  facecrop.pl scene.png -o faces_%03d.png
+
+=head1 OPTIONS
+
+=over 4
+
+=item *
+
+C<--output-file> - output file name
+
+The output file name will be used as a template if more than one face
+is detected.
+
+=item *
+
+C<--width> - maximum width of the output image
+
+=item *
+
+C<--height> - maximum height of the output image
+
+=item *
+
+C<--scale> - scale factor for the output area around the face
+
+Default is 1.5 which seems to usually capture the "whole face"
+around the detected area.
+
+=item *
+
+C<--largest> - only output the largest face found
+
+=item *
+
+C<--draw-box> - draw a box around the detection area
+
+=item *
+
+C<--verbose> - output more information during progress
+
+=back
+
 =cut
 
 GetOptions(
-    'o:s'        => \my $out_file,
+    'output-file|o:s'        => \my $out_file,
     'width|w:s'  => \my $max_width,
     'height|h:s' => \my $max_height,
     'scale|s:s'  => \my $scale,
