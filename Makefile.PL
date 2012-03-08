@@ -147,7 +147,7 @@ sub regen_EXAMPLES {
         if ($perl =~/\s/) {
             $perl = qq{"$perl"};
         };
-        my $examples = `$perl -w examples/gen_examples_pod.pl`;
+        my $examples = `$perl -w examples/gen_examples_pod.pl $module`;
         if ($examples) {
             $examples =~ s/\r\n/\n/g;
             if (open my $out, '>', $target) {
