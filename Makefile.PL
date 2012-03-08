@@ -46,9 +46,10 @@ if( $is_Win32 ) {
     # I'm sorry, but I don't know how else get -lws2_32 to link :-/
     $LIBS = "$LIBS -LC:\\strawberry\\c\\i686-w64-mingw32\\lib -lws2_32";
     
-    # These should be the default everywhere, but aren't on my Perl
-    $ccflags = "-msse2 $ccflags";
 };
+# These should be the default everywhere, but aren't on my versions of Perl
+# (strawberry and Debian ./Configure -de)
+$ccflags = "-msse2 $ccflags";
 
 my @LIBS = ($LIBS);
 
