@@ -1,3 +1,4 @@
+inc/Devel/CheckLib.pm
 .gitignore
 ccv-src/.gitignore
 ccv-src/bin/bbfcreate.c

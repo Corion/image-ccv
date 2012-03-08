@@ -1,13 +1,12 @@
-# -*- mode: perl; c-basic-offset: 4; indent-tabs-mode: nil; -*-
-
+#!perl -w
 use strict;
 use ExtUtils::MakeMaker qw(WriteMakefile);
 use Config;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
 
+use lib qw(inc);
+use Devel::CheckLib;
 
-# TODO: Add command line switches in addition to %ENV and %Config
+# Prompt the user here for any paths and other configuration
 
 warn <<ALPHA_WARNING;
 *** ALPHA VERSION!
@@ -28,21 +27,30 @@ my $ccflags = $ENV{CCFLAGS}
             || $Config::Config{ ccflags }
             ;
 
-# TODO: Add a probe for png.h
-# TODO: Add a probe for jpeg.h
-# TODO: Add a probe for alloca.h
+# TODO: Add command line switches in addition to %ENV and %Config
+
+my $is_Win32 = ($^O =~ /mswin32/i );
+
+check_lib_or_exit( lib => 'png' );
+check_lib_or_exit( lib => 'jpeg' );
+
+if(! $is_Win32) {
+    check_lib_or_exit( header => 'alloca.h', function => '(int)&alloca' );
+};
+
 my $LIBS = $ENV{LIBS} 
            || '-ljpeg -lpng'
            ;
 
-my @LIBS = ($LIBS);
-
-if( $^O =~ /mswin32/i ) {
+if( $is_Win32 ) {    
     # I'm sorry, but I don't know how else get -lws2_32 to link :-/
     $LIBS = "$LIBS -LC:\\strawberry\\c\\i686-w64-mingw32\\lib -lws2_32";
-    #push @LIBS, ":nosearch $LIBS -lws2_32";
+    
+    # These should be the default everywhere, but aren't on my Perl
+    $ccflags = "-msse2 $ccflags";
 };
-warn "LIBS: $LIBS\n";
+
+my @LIBS = ($LIBS);
 
 WriteMakefile1(
     MIN_PERL_VERSION => '5.006',
