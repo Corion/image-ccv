@@ -25,4 +25,4 @@ requires:
   perl: 5.006
 resources:
   repository: http://github.com/Corion/image-ccv
-version: 0.03
+version: 0.04
