@@ -2,6 +2,10 @@
 # TODO: Add FAQ.pm
 # TODO: Document examples
 
+0.04 20120310
+    . Make test more resilient against floating point differences
+    . Make library header checking more specific
+
 0.03 20120308
     . Fixed link to lightning talk presenting the module
     . Use Devel::CheckLib to check for libpng, jpeglib and
