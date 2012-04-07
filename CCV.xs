@@ -86,7 +86,7 @@ void myccv_get_descriptor(char* file, ccv_sift_param_t* param)
 	Inline_Stack_Reset;
 
 	ccv_dense_matrix_t* data = 0;
-	ccv_unserialize(file, &data, CCV_SERIAL_GRAY | CCV_SERIAL_ANY_FILE);
+	ccv_read(file, &data, CCV_IO_GRAY | CCV_IO_ANY_FILE);
 	assert(data);
 	
 	ccv_array_t* keypoints = 0;
@@ -109,9 +109,9 @@ void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 	ccv_enable_default_cache();
 	ccv_dense_matrix_t* object = 0;
 	ccv_dense_matrix_t* image = 0;
-	ccv_unserialize(object_file, &object, CCV_SERIAL_GRAY | CCV_SERIAL_ANY_FILE);
+	ccv_read(object_file, &object, CCV_IO_GRAY | CCV_IO_ANY_FILE);
 	assert(object);
-	ccv_unserialize(scene_file, &image, CCV_SERIAL_GRAY | CCV_SERIAL_ANY_FILE);
+	ccv_read(scene_file, &image, CCV_IO_GRAY | CCV_IO_ANY_FILE);
 	assert(image);
 	ccv_array_t* obj_keypoints = 0;
 	ccv_dense_matrix_t* obj_desc = 0;
@@ -123,12 +123,12 @@ void myccv_sift(char* object_file, char* scene_file, ccv_sift_param_t* param)
 	int match = 0;
 	for (i = 0; i < obj_keypoints->rnum; i++)
 	{
-		float* odesc = obj_desc->data.fl + i * 128;
+		float* odesc = obj_desc->data.f32 + i * 128;
 		int minj = -1;
 		double mind = 1e6, mind2 = 1e6;
 		for (j = 0; j < image_keypoints->rnum; j++)
 		{
-			float* idesc = image_desc->data.fl + j * 128;
+			float* idesc = image_desc->data.f32 + j * 128;
 			double d = 0;
 			for (k = 0; k < 128; k++)
 			{
