@@ -83,10 +83,14 @@ ccvmain.c
 Changes
 examples/facecrop.pl
 examples/facetest.pl
+examples/gen_examples_pod.pl
+examples/README
 examples/sift-video.pl
 examples/sifttest.pl
+inc/Devel/CheckLib.pm
 INLINE_CCV.h
 lib/Image/CCV.pm
+lib/Image/CCV/Examples.pm
 lib/Image/CCV/facedetect/cascade.txt
 lib/Image/CCV/facedetect/stage-0.txt
 lib/Image/CCV/facedetect/stage-1.txt
