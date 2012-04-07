@@ -21,6 +21,7 @@ my $ccflags = $ENV{CCFLAGS}
             ;
 
 # TODO: Add command line switches in addition to %ENV and %Config
+#       Thanks to Devel::CheckLib, LIBS= and INC= already exist
 # TODO: Move OS checking to Devel::CheckOS
 
 my $DEBUG = 0;
