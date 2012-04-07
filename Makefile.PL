@@ -28,13 +28,13 @@ my $DEBUG = 0;
 
 my $is_Win32 = ($^O =~ /mswin32/i );
 
-check_lib_or_exit( header => 'png.h', lib => 'png', function => '(void)&png_create_write_struct;',
+check_lib_or_exit( header => 'png.h', lib => 'png', function => '(void)&png_create_write_struct; return 0;',
     debug => $DEBUG,
 );
 check_lib_or_exit( header => ['stdio.h', 'jpeglib.h'], lib => 'jpeg' );
 
 if(! $is_Win32) {
-    check_lib_or_exit( header => 'alloca.h', function => '(void)&alloca;' );
+    check_lib_or_exit( header => 'alloca.h', function => '(void)&alloca; return 0;' );
 };
 
 my $LIBS = $ENV{LIBS} 
