@@ -2,6 +2,9 @@
 # TODO: Add FAQ.pm
 # TODO: Document examples
 
+0.05 to be released
+    ! Updated to new version of (unstable) CCV library
+
 0.04 20120310
     . Make test more resilient against floating point differences
     . Make library header checking more specific

@@ -32,3 +32,6 @@ ccv-src/lib/make.bat
 ccv-src/lib/makefile
 ccv-src/lib/Makefile.mk
 out.png
+ccv-src/samples/.*.png$
+ccv-src/bin/.*.rb$
+ccv-src/test
