@@ -77,15 +77,15 @@ sub print_header {
     my $version = shift;
 
     # I just don't like here docs.
-    print "package WWW::Mechanize::Firefox::Examples;\n\n";
+    print "package Image::CCV::Examples;\n\n";
 
     print '#' x 79, "\n";
     print "#\n";
-    print "# Examples - WWW::Mechanize::Firefox examples.\n";
+    print "# Examples - Image::CCVW examples.\n";
     print "#\n";
 
     print "# A documentation only module showing the examples that are\n";
-    print "# included in the WWW::Mechanize::Firefox distribution. This\n";
+    print "# included in the Image::CCV distribution. This\n";
     print "# file was generated automatically via the gen_examples_pod.pl\n";
     print "# program that is also included in the examples directory.\n";
     print "#\n";
@@ -107,12 +107,12 @@ sub print_header {
 
     print "=head1 NAME\n\n";
 
-    print "Examples - WWW::Mechanize::Firefox example programs.\n\n";
+    print "Examples - Image::CCV example programs.\n\n";
 
     print "=head1 DESCRIPTION\n\n";
 
     print "This is a documentation only module showing the examples that are\n";
-    print "included in the L<WWW::Mechanize::Firefox> distribution.\n\n";
+    print "included in the L<Image::CCV> distribution.\n\n";
     print "This file was auto-generated via the C<gen_examples_pod.pl>\n";
     print "program that is also included in the examples directory.\n";
     print "\n";
@@ -134,7 +134,7 @@ sub print_index {
     print "=head1 Example programs\n\n";
 
     print "The following is a list of the $count example programs that are ";
-    print "included in the WWW::Mechanize::Firefox distribution.\n\n";
+    print "included in the Image::CCV distribution.\n\n";
 
     print "=over\n\n";
 
@@ -205,7 +205,7 @@ sub print_example {
     print $verbatim, "\n\n";
 
     print 'Download this example: L<http://cpansearch.perl.org/src/CORION/';
-    print "WWW-Mechanize-Firefox-$version/examples/$example>\n\n";
+    print "Image-CCV-$version/examples/$example>\n\n";
 }
 
 ###############################################################################
