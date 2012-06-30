@@ -154,13 +154,13 @@ myccv_detect_faces (filename, training_data)
 	int i;
 	ccv_enable_default_cache();
 	ccv_dense_matrix_t* image = 0;
-	/* // TODO: Make the cascade accessible from the outside */
+	/* TODO: Make the cascade accessible from the outside */
 	ccv_bbf_classifier_cascade_t* cascade = ccv_load_bbf_classifier_cascade(training_data);
 	ccv_read(filename, &image, CCV_IO_GRAY | CCV_IO_ANY_FILE);
 	if (image != 0)
 	{
 		/* TODO: Make the BBF parameters accessible from the outside */
-		ccv_bbf_param_t params = { .interval = 5, .min_neighbors = 2, .flags = 0, .size = ccv_size(24, 24) };
+		ccv_bbf_param_t params = { .interval = 5, .min_neighbors = 2, .accurate = 1, .flags = 0, .size = ccv_size(24, 24) };
 		ccv_array_t* seq = ccv_bbf_detect_objects(image, &cascade, 1, params);
 		for (i = 0; i < seq->rnum; i++)
 		{
