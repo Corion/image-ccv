@@ -2,6 +2,9 @@
 # TODO: Add FAQ.pm
 # TODO: Document examples
 
+0.06 20120630
+    . New upstream release, as upstream has now a major version change (0.1)
+
 0.05 20120407
     . Fixed URL for lightning talk
     ! Updated to new version of (unstable) CCV library

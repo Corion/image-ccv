@@ -4,7 +4,7 @@ require DynaLoader;
 use Carp qw(croak);
 use vars qw($VERSION @EXPORT @ISA);
 
-$VERSION = '0.05'; 
+$VERSION = '0.06'; 
 
 @EXPORT = qw(sift detect_faces );
 
@@ -29,6 +29,8 @@ This code is very, very rough. It leaks memory left and right
 and the API is very much in flux. But as I got easy results using
 this code already, I am releasing it as is and will improve it and
 the API as I go along.
+
+See also L<http://libccv.org> for the C<libccv> website.
 
 =cut
 
@@ -212,10 +214,14 @@ Memory currently is only allocated. Rarely is memory deallocated.
 The public repository of this module is 
 L<http://github.com/Corion/image-ccv>.
 
+The upstream repository of C<libccv> is at
+
 =head1 SUPPORT
 
 The public support forum of this module is
 L<http://perlmonks.org/>.
+
+The support for C<libccv> can be found at L<http://libccv.org>.
 
 =head1 TALKS
 
