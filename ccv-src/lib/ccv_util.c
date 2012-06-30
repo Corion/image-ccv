@@ -65,6 +65,29 @@ void ccv_zero(ccv_matrix_t* mat)
 	memset(dmt->data.u8, 0, dmt->step * dmt->rows);
 }
 
+int ccv_any_nan(ccv_matrix_t *a)
+{
+	ccv_dense_matrix_t* da = ccv_get_dense_matrix(a);
+	assert((da->type & CCV_32F) || (da->type & CCV_64F));
+	int ch = CCV_GET_CHANNEL(da->type);
+	int i;
+	if (da->type & CCV_32F)
+	{
+		for (i = 0; i < da->rows * da->cols * ch; i++)
+#ifdef isnanf
+			if (isnanf(da->data.f32[i]))
+#else
+			if (isnan(da->data.f32[i]))
+#endif
+				return i + 1;
+	} else {
+		for (i = 0; i < da->rows * da->cols * ch; i++)
+			if (isnan(da->data.f64[i]))
+				return i + 1;
+	}
+	return 0;
+}
+
 void ccv_flatten(ccv_matrix_t* a, ccv_matrix_t** b, int type, int flag)
 {
 	ccv_dense_matrix_t* da = ccv_get_dense_matrix(a);
@@ -551,7 +574,7 @@ void ccv_array_push(ccv_array_t* array, void* r)
 	array->rnum++;
 	if (array->rnum > array->size)
 	{
-		array->size = array->size * 2;
+		array->size = ccv_max(array->size * 3 / 2, array->size + 1);
 		array->data = ccrealloc(array->data, array->size * array->rsize);
 	}
 	memcpy(ccv_array_get(array, array->rnum - 1), r, array->rsize);
