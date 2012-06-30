@@ -1,19 +1,21 @@
-CC = clang
-LDFLAGS = -L"../lib" -lccv -pthread -ljpeg -lpng -lfftw3f -lfftw3 -lz -lgsl -lblas -llinear -lm # -lgomp
-CFLAGS = -O3 -msse2 -Wall -I"../lib"
+CC = `cat ../lib/.CC`# -faddress-sanitizer -fno-omit-frame-pointer
+LDFLAGS = -L"../lib" -lccv `cat ../lib/.LN` -lm
+CFLAGS = -O1 -Wall -I"../lib" `cat ../lib/.DEF`
 
 TARGETS = bbffmt siftmatch bbfcreate bbfdetect swtcreate swtdetect dpmcreate dpmdetect convert
 
 all: libccv.a $(TARGETS)
 
 clean:
-	rm *.o ../lib/*.o ../lib/3rdparty/*.o ../lib/libccv.a $(TARGETS)
+	${MAKE} clean -C ../lib ; rm *.o $(TARGETS)
 
 $(TARGETS): %: %.o libccv.a
-	$(CC) -o $@ $< $(LDFLAGS)
+	@echo "$(CC) -o $@ $< $(LDFLAGS)"
+	@$(CC) -o $@ $< $(LDFLAGS)
 
 libccv.a:
 	${MAKE} -C ../lib
 
 %.o: %.c ../lib/ccv.h
-	$(CC) $< -o $@ -c $(CFLAGS)
+	@echo "$(CC) $< -o $@ -c $(CFLAGS)"
+	@$(CC) $< -o $@ -c $(CFLAGS)
