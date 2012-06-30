@@ -8,18 +8,8 @@
 #ifdef USE_OPENMP
 #include <omp.h>
 #endif
-#ifdef USE_OPENCL
-#include <CL/cl.h>
-#endif
 
 #define _ccv_width_padding(x) (((x) + 3) & -4)
-
-static unsigned int _ccv_bbf_time_measure()
-{
-	struct timeval tv;
-	gettimeofday(&tv, 0);
-	return tv.tv_sec * 1000000 + tv.tv_usec;
-}
 
 static inline int _ccv_run_bbf_feature(ccv_bbf_feature_t* feature, int* step, unsigned char** u8)
 {
@@ -56,6 +46,44 @@ static inline int _ccv_run_bbf_feature(ccv_bbf_feature_t* feature, int* step, un
 #undef pf_at
 #undef nf_at
 	return 1;
+}
+
+static int _ccv_read_bbf_stage_classifier(const char* file, ccv_bbf_stage_classifier_t* classifier)
+{
+	FILE* r = fopen(file, "r");
+	if (r == 0) return -1;
+	int stat = 0;
+	stat |= fscanf(r, "%d", &classifier->count);
+	union { float fl; int i; } fli;
+	stat |= fscanf(r, "%d", &fli.i);
+	classifier->threshold = fli.fl;
+	classifier->feature = (ccv_bbf_feature_t*)ccmalloc(classifier->count * sizeof(ccv_bbf_feature_t));
+	classifier->alpha = (float*)ccmalloc(classifier->count * 2 * sizeof(float));
+	int i, j;
+	for (i = 0; i < classifier->count; i++)
+	{
+		stat |= fscanf(r, "%d", &classifier->feature[i].size);
+		for (j = 0; j < classifier->feature[i].size; j++)
+		{
+			stat |= fscanf(r, "%d %d %d", &classifier->feature[i].px[j], &classifier->feature[i].py[j], &classifier->feature[i].pz[j]);
+			stat |= fscanf(r, "%d %d %d", &classifier->feature[i].nx[j], &classifier->feature[i].ny[j], &classifier->feature[i].nz[j]);
+		}
+		union { float fl; int i; } flia, flib;
+		stat |= fscanf(r, "%d %d", &flia.i, &flib.i);
+		classifier->alpha[i * 2] = flia.fl;
+		classifier->alpha[i * 2 + 1] = flib.fl;
+	}
+	fclose(r);
+	return 0;
+}
+
+#ifdef HAVE_GSL
+
+static unsigned int _ccv_bbf_time_measure()
+{
+	struct timeval tv;
+	gettimeofday(&tv, 0);
+	return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
 #define less_than(a, b, aux) ((a) < (b))
@@ -116,7 +144,6 @@ static int _ccv_prune_positive_data(ccv_bbf_classifier_cascade_t* cascade, unsig
 
 static int _ccv_prepare_background_data(ccv_bbf_classifier_cascade_t* cascade, char** bgfiles, int bgnum, unsigned char** negdata, int negnum)
 {
-#ifdef HAVE_GSL
 	int t, i, j, k, q;
 	int negperbg = negnum / bgnum + 1;
 	int negtotal = 0;
@@ -153,7 +180,7 @@ static int _ccv_prepare_background_data(ccv_bbf_classifier_cascade_t* cascade, c
 				ccv_flip(image, 0, 0, CCV_FLIP_X);
 			if (t % 4 >= 2)
 				ccv_flip(image, 0, 0, CCV_FLIP_Y);
-			ccv_bbf_param_t params = { .interval = 3, .min_neighbors = 0, .flags = 0, .size = cascade->size };
+			ccv_bbf_param_t params = { .interval = 3, .min_neighbors = 0, .accurate = 1, .flags = 0, .size = cascade->size };
 			ccv_array_t* detected = ccv_bbf_detect_objects(image, &cascade, 1, params);
 			memset(idcheck, 0, ccv_min(detected->rnum, negperbg) * sizeof(int));
 			for (j = 0; j < ccv_min(detected->rnum, negperbg); j++)
@@ -244,9 +271,6 @@ static int _ccv_prepare_background_data(ccv_bbf_classifier_cascade_t* cascade, c
 	ccv_drain_cache();
 	printf("\n");
 	return negtotal;
-#else
-	return 0;
-#endif
 }
 
 static void _ccv_prepare_positive_data(ccv_dense_matrix_t** posimg, unsigned char** posdata, ccv_size_t size, int posnum)
@@ -305,7 +329,6 @@ static inline int _ccv_bbf_exist_gene_feature(ccv_bbf_gene_t* gene, int x, int y
 	return 0;
 }
 
-#ifdef HAVE_GSL
 static inline void _ccv_bbf_randomize_gene(gsl_rng* rng, ccv_bbf_gene_t* gene, int* rows, int* cols)
 {
 	int i;
@@ -344,7 +367,6 @@ static inline void _ccv_bbf_randomize_gene(gsl_rng* rng, ccv_bbf_gene_t* gene, i
 		gene->feature.ny[i] = y;
 	}
 }
-#endif
 
 static inline double _ccv_bbf_error_rate(ccv_bbf_feature_t* feature, unsigned char** posdata, int posnum, unsigned char** negdata, int negnum, ccv_size_t size, double* pw, double* nw)
 {
@@ -377,7 +399,6 @@ static CCV_IMPLEMENT_QSORT(_ccv_bbf_genetic_qsort, ccv_bbf_gene_t, less_than)
 static ccv_bbf_feature_t _ccv_bbf_genetic_optimize(unsigned char** posdata, int posnum, unsigned char** negdata, int negnum, int ftnum, ccv_size_t size, double* pw, double* nw)
 {
 	ccv_bbf_feature_t best;
-#ifdef HAVE_GSL
 	/* seed (random method) */
 	gsl_rng_env_setup();
 	gsl_rng* rng = gsl_rng_alloc(gsl_rng_default);
@@ -450,9 +471,9 @@ static ccv_bbf_feature_t _ccv_bbf_genetic_optimize(unsigned char** posdata, int 
 				switch (gsl_rng_uniform_int(rng, 3))
 				{
 					case 0: /* add */
-						if (gene[i].pk == CCV_SGF_POINT_MAX && gene[i].nk == CCV_SGF_POINT_MAX)
+						if (gene[i].pk == CCV_BBF_POINT_MAX && gene[i].nk == CCV_BBF_POINT_MAX)
 							break;
-						while (*pnk[pn] + 1 > CCV_SGF_POINT_MAX)
+						while (*pnk[pn] + 1 > CCV_BBF_POINT_MAX)
 							pn = gsl_rng_uniform_int(rng, 2);
 						do {
 							z = gsl_rng_uniform_int(rng, 3);
@@ -467,9 +488,9 @@ static ccv_bbf_feature_t _ccv_bbf_genetic_optimize(unsigned char** posdata, int 
 						decay = gene[i].age = 0;
 						break;
 					case 1: /* remove */
-						if (gene[i].pk + gene[i].nk <= CCV_SGF_POINT_MIN) /* at least 3 points have to be examed */
+						if (gene[i].pk + gene[i].nk <= CCV_BBF_POINT_MIN) /* at least 3 points have to be examed */
 							break;
-						while (*pnk[pn] - 1 <= 0) // || *pnk[pn] + *pnk[!pn] - 1 < CCV_SGF_POINT_MIN)
+						while (*pnk[pn] - 1 <= 0) // || *pnk[pn] + *pnk[!pn] - 1 < CCV_BBF_POINT_MIN)
 							pn = gsl_rng_uniform_int(rng, 2);
 						victim = gsl_rng_uniform_int(rng, *pnk[pn]);
 						for (j = victim; j < *pnk[pn] - 1; j++)
@@ -505,8 +526,8 @@ static ccv_bbf_feature_t _ccv_bbf_genetic_optimize(unsigned char** posdata, int 
 			do {
 				dad = gsl_rng_uniform_int(rng, ftnum);
 				mum = gsl_rng_uniform_int(rng, ftnum);
-			} while (dad == mum || gene[dad].pk + gene[mum].nk < CCV_SGF_POINT_MIN); /* at least 3 points have to be examed */
-			for (j = 0; j < CCV_SGF_POINT_MAX; j++)
+			} while (dad == mum || gene[dad].pk + gene[mum].nk < CCV_BBF_POINT_MIN); /* at least 3 points have to be examed */
+			for (j = 0; j < CCV_BBF_POINT_MAX; j++)
 			{
 				gene[i].feature.pz[j] = -1;
 				gene[i].feature.nz[j] = -1;
@@ -542,7 +563,6 @@ static ccv_bbf_feature_t _ccv_bbf_genetic_optimize(unsigned char** posdata, int 
 	}
 	ccfree(gene);
 	gsl_rng_free(rng);
-#endif
 	return best;
 }
 
@@ -583,7 +603,6 @@ static ccv_bbf_gene_t _ccv_bbf_best_gene(ccv_bbf_gene_t* gene, int pnum, int poi
 static ccv_bbf_feature_t _ccv_bbf_convex_optimize(unsigned char** posdata, int posnum, unsigned char** negdata, int negnum, ccv_bbf_feature_t* best_feature, ccv_size_t size, double* pw, double* nw)
 {
 	ccv_bbf_gene_t best_gene;
-#ifdef HAVE_GSL
 	/* seed (random method) */
 	gsl_rng_env_setup();
 	gsl_rng* rng = gsl_rng_alloc(gsl_rng_default);
@@ -801,37 +820,7 @@ static ccv_bbf_feature_t _ccv_bbf_convex_optimize(unsigned char** posdata, int p
 	}
 	ccfree(gene);
 	gsl_rng_free(rng);
-#endif
 	return best_gene.feature;
-}
-
-static int _ccv_read_bbf_stage_classifier(const char* file, ccv_bbf_stage_classifier_t* classifier)
-{
-	FILE* r = fopen(file, "r");
-	if (r == 0) return -1;
-	int stat = 0;
-	stat |= fscanf(r, "%d", &classifier->count);
-	union { float fl; int i; } fli;
-	stat |= fscanf(r, "%d", &fli.i);
-	classifier->threshold = fli.fl;
-	classifier->feature = (ccv_bbf_feature_t*)ccmalloc(classifier->count * sizeof(ccv_bbf_feature_t));
-	classifier->alpha = (float*)ccmalloc(classifier->count * 2 * sizeof(float));
-	int i, j;
-	for (i = 0; i < classifier->count; i++)
-	{
-		stat |= fscanf(r, "%d", &classifier->feature[i].size);
-		for (j = 0; j < classifier->feature[i].size; j++)
-		{
-			stat |= fscanf(r, "%d %d %d", &classifier->feature[i].px[j], &classifier->feature[i].py[j], &classifier->feature[i].pz[j]);
-			stat |= fscanf(r, "%d %d %d", &classifier->feature[i].nx[j], &classifier->feature[i].ny[j], &classifier->feature[i].nz[j]);
-		}
-		union { float fl; int i; } flia, flib;
-		stat |= fscanf(r, "%d %d", &flia.i, &flib.i);
-		classifier->alpha[i * 2] = flia.fl;
-		classifier->alpha[i * 2 + 1] = flib.fl;
-	}
-	fclose(r);
-	return 0;
 }
 
 static int _ccv_write_bbf_stage_classifier(const char* file, ccv_bbf_stage_classifier_t* classifier)
@@ -1151,6 +1140,12 @@ void ccv_bbf_classifier_cascade_new(ccv_dense_matrix_t** posimg, int posnum, cha
 	ccfree(posdata);
 	ccfree(cascade);
 }
+#else
+void ccv_bbf_classifier_cascade_new(ccv_dense_matrix_t** posimg, int posnum, char** bgfiles, int bgnum, int negnum, ccv_size_t size, const char* dir, ccv_bbf_new_param_t params)
+{
+	fprintf(stderr, " ccv_bbf_classifier_cascade_new requires libgsl support, please compile ccv with libgsl.\n");
+}
+#endif
 
 static int _ccv_is_equal(const void* _r1, const void* _r2, void* data)
 {
@@ -1199,12 +1194,13 @@ ccv_array_t* ccv_bbf_detect_objects(ccv_dense_matrix_t* a, ccv_bbf_classifier_ca
 		ccv_resample(pyr[0], &pyr[i * 4], 0, (int)(pyr[0]->rows / pow(scale, i)), (int)(pyr[0]->cols / pow(scale, i)), CCV_INTER_AREA);
 	for (i = next; i < scale_upto + next * 2; i++)
 		ccv_sample_down(pyr[i * 4 - next * 4], &pyr[i * 4], 0, 0, 0);
-	for (i = next * 2; i < scale_upto + next * 2; i++)
-	{
-		ccv_sample_down(pyr[i * 4 - next * 4], &pyr[i * 4 + 1], 0, 1, 0);
-		ccv_sample_down(pyr[i * 4 - next * 4], &pyr[i * 4 + 2], 0, 0, 1);
-		ccv_sample_down(pyr[i * 4 - next * 4], &pyr[i * 4 + 3], 0, 1, 1);
-	}
+	if (params.accurate)
+		for (i = next * 2; i < scale_upto + next * 2; i++)
+		{
+			ccv_sample_down(pyr[i * 4 - next * 4], &pyr[i * 4 + 1], 0, 1, 0);
+			ccv_sample_down(pyr[i * 4 - next * 4], &pyr[i * 4 + 2], 0, 0, 1);
+			ccv_sample_down(pyr[i * 4 - next * 4], &pyr[i * 4 + 3], 0, 1, 1);
+		}
 	ccv_array_t* idx_seq;
 	ccv_array_t* seq = ccv_array_new(64, sizeof(ccv_comp_t));
 	ccv_array_t* seq2 = ccv_array_new(64, sizeof(ccv_comp_t));
@@ -1226,7 +1222,7 @@ ccv_array_t* ccv_bbf_detect_objects(ccv_dense_matrix_t* a, ccv_bbf_classifier_ca
 			int paddings[] = { pyr[i * 4]->step * 4 - i_cols * 4,
 							   pyr[i * 4 + next * 4]->step * 2 - i_cols * 2,
 							   pyr[i * 4 + next * 8]->step - i_cols };
-			for (q = 0; q < 4; q++)
+			for (q = 0; q < (params.accurate ? 4 : 1); q++)
 			{
 				unsigned char* u8[] = { pyr[i * 4]->data.u8 + dx[q] * 2 + dy[q] * pyr[i * 4]->step * 2, pyr[i * 4 + next * 4]->data.u8 + dx[q] + dy[q] * pyr[i * 4 + next * 4]->step, pyr[i * 4 + next * 8 + q]->data.u8 };
 				for (y = 0; y < i_rows; y++)
@@ -1398,12 +1394,13 @@ ccv_array_t* ccv_bbf_detect_objects(ccv_dense_matrix_t* a, ccv_bbf_classifier_ca
 
 	for (i = 1; i < scale_upto + next * 2; i++)
 		ccv_matrix_free(pyr[i * 4]);
-	for (i = next * 2; i < scale_upto + next * 2; i++)
-	{
-		ccv_matrix_free(pyr[i * 4 + 1]);
-		ccv_matrix_free(pyr[i * 4 + 2]);
-		ccv_matrix_free(pyr[i * 4 + 3]);
-	}
+	if (params.accurate)
+		for (i = next * 2; i < scale_upto + next * 2; i++)
+		{
+			ccv_matrix_free(pyr[i * 4 + 1]);
+			ccv_matrix_free(pyr[i * 4 + 2]);
+			ccv_matrix_free(pyr[i * 4 + 3]);
+		}
 	if (params.size.height != _cascade[0]->size.height || params.size.width != _cascade[0]->size.width)
 		ccv_matrix_free(pyr[0]);
 
