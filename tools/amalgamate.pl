@@ -17,19 +17,22 @@ GetOptions(
 
 #XXX Should read CCV version from CCV.h or wherever
 $outfile ||= "ccv_amalgamated.c";
-$libdir ||= 'ccv/lib'; # XXX Default should be src/lib
+$libdir ||= 'ccv-src/lib'; # XXX Default should be src/lib
 
 if(! @include) {
-    push @include, $libdir, "$libdir/3rdparty";
+    push @include,
+             $libdir,
+             bsd_glob "$libdir/3rdparty/*"
+    ;
 };
-
 my %included;
 my %not_found;
 
 sub find_include {
     my ($file) = @_;
     -f $file and return $file;
-    -f "$libdir/$file" and return "$libdir/$file";
+    #-f "$libdir/$file" and return "$libdir/$file";
+    
     map {-f "$_/$file"
           ? "$_/$file"
           : () } @include;
@@ -41,19 +44,19 @@ sub slurp($$) {
     $included{ $filename }++;
     $included{ $alias }++;
     
-    #use Data::Dumper;
-    #warn Dumper \%included;
-
+    
+    warn "Loading $filename from $alias";
+    
     local $/;
     open my $fh, '<', $filename
         or die "Couldn't read '$filename:' $!";
     join "\n",
         map { s/\s+$//g if length; $_ }
-	    qq<#line 1 "$alias">,
-	    <$fh>,
-	    "",
-	    "/* End of $alias */",
-	    ""
+            qq<#line 1 "$alias">,
+            <$fh>,
+            "",
+            "/* End of $alias */",
+            ""
     ;
 };
 
@@ -63,23 +66,27 @@ sub maybe_slurp {
     # Find the potential alias for the filename
     my $found;
     if( ! $alias ) {
-	my @found = find_include( $filename );
-	$found = $found[0];
-	$alias = $filename;
-	return "" unless @found;
+        my @found = find_include( $filename );
+        $found = $found[0];
+        $alias = $filename;
+        
+        if(! @found) {
+            warn "No include found for $filename";
+        };
+        
+        return "" unless @found;
     };
-    
-    warn join "!", $alias, $filename, $found;
     
     if( not $included{$found} and not $included{ $alias } and not $included{ $filename }) {
         return slurp( $found, $alias );
     } else {
-	return "/* $filename already included */\n";
+        warn "$filename already included as $alias";
+        return "/* $alias already included */\n";
     };
 };
 
 my @files = map { s/\s+$//g; 
-                  bsd_glob "$libdir/$_"
+                  find_include( $_ )
                 } <DATA>;
 
 open my $out, '>', $outfile
@@ -102,19 +109,20 @@ for my $file (@files) {
     
     warn $file;
     my $content = maybe_slurp($file);
+    warn $content;
     die "'$file' not found in @include"
         if ! $content;
     
     # Process #includes
     # #include "io/_ccv_io_libjpeg.c"
-    #warn $_ for ($content =~ /^(\s*#include\s+["<]?.*)$/mg);
+    #warn $_ for ($content =~ m!^\s*#include\s+(["<]?([-a-zA-Z0-9._/]+)[">]?)$!mg);
     $content =~ s!^\s*#include\s+(["<]?([-a-zA-Z0-9._/]+)[">]?)!maybe_slurp($2)||$&!gem;
     print {$out} $content;
 };
 
 __DATA__
+sha1.h
+kiss_fft.h
 ccv.h
-3rdparty/sha1.h
-3rdparty/sha1.c
 ccv_io.c
 *.c
