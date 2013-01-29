@@ -35,3 +35,4 @@ out.png
 ccv-src/samples/.*.png$
 ccv-src/bin/.*.rb$
 ccv-src/test
+MYMETA.*$
