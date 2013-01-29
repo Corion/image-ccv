@@ -1,4 +1,4 @@
-*.[oa]
+*.[oda]
 *.~
 *.swp
 tags
@@ -8,6 +8,7 @@ site
 lib/.CC
 lib/.DEF
 lib/.LN
+lib/*.conf
 test/*_test
 test/*.jpg
 test/*.png
@@ -25,10 +26,12 @@ bin/*.bin
 bin/*.json
 bin/*.xml
 bin/*.diff
-bin/*.exe
 bin/data/*
-lib/ccv.dll
-lib/ccv.def
 data/*
 tool/*
+config.mk
+build
 Thumbs.db
+bin/*.exe
+lib/ccv.dll
+lib/ccv.def
