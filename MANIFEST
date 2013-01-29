@@ -111,8 +111,6 @@ lib/Image/CCV/facedetect/stage-9.txt
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.skip
-MYMETA.json
-MYMETA.yml
 t/00-load.t
 t/01-c_structs.t
 t/02-detect-faces.t
