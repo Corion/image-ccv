@@ -5,6 +5,8 @@
 #endif
 #ifdef HAVE_LIBPNG
 #include <png.h>
+#include <zconf.h>
+#include <zlib.h>
 #endif
 #ifdef HAVE_LIBJPEG
 #include "io/_ccv_io_libjpeg.c"

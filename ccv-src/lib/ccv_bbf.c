@@ -1,5 +1,6 @@
 #include "ccv.h"
 #include "ccv_internal.h"
+#include <sys/time.h>
 #ifdef HAVE_GSL
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
