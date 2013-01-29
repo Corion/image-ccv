@@ -43,7 +43,7 @@ my $LIBS = $ENV{LIBS}
 
 if( $is_Win32 ) {    
     # I'm sorry, but I don't know how else get -lws2_32 to link :-/
-    $LIBS = "$LIBS -LC:\\strawberry\\c\\i686-w64-mingw32\\lib -lws2_32";
+    $LIBS = "$LIBS -LC:\\strawberry-5.16\\c\\i686-w64-mingw32\\lib -lws2_32";
     
 };
 # These should be the default everywhere, but aren't on my versions of Perl
