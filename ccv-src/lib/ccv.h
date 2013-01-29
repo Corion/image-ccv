@@ -16,7 +16,9 @@
 #include <string.h>
 #include <float.h>
 #include <math.h>
+#ifdef HAVE_SSE2
 #include <xmmintrin.h>
+#endif
 #include <assert.h>
 #ifdef _WIN32
 #include <malloc.h>
@@ -60,9 +62,10 @@ enum {
 };
 
 enum {
-	CCV_GARBAGE   = 0x80000000, // matrix is in cache (not used by any functions)
-	CCV_REUSABLE  = 0x40000000, // matrix can be recycled
-	CCV_UNMANAGED = 0x20000000, // matrix is allocated by user, therefore, cannot be freed by ccv_matrix_free/ccv_matrix_free_immediately
+	CCV_GARBAGE       = 0x80000000, // matrix is in cache (not used by any functions)
+	CCV_REUSABLE      = 0x40000000, // matrix can be recycled
+	CCV_UNMANAGED     = 0x20000000, // matrix is allocated by user, therefore, cannot be freed by ccv_matrix_free/ccv_matrix_free_immediately
+	CCV_NO_DATA_ALLOC = 0x10000000, // matrix is allocated as header only, but with no data section, therefore, you have to free the data section separately
 };
 
 typedef union {
@@ -146,12 +149,12 @@ typedef union {
 	struct {
 		uint64_t bitmap;
 		uint64_t set;
-		uint32_t age;
+		uint64_t age;
 	} branch;
 	struct {
 		uint64_t sign;
 		uint64_t off;
-		uint64_t age_and_size;
+		uint64_t type;
 	} terminal;
 } ccv_cache_index_t;
 
@@ -161,15 +164,15 @@ typedef struct {
 	uint32_t age;
 	size_t up;
 	size_t size;
-	ccv_cache_index_free_f ffree;
+	ccv_cache_index_free_f ffree[16];
 } ccv_cache_t;
 
 /* I made it as generic as possible */
 
-void ccv_cache_init(ccv_cache_t* cache, ccv_cache_index_free_f ffree, size_t up);
-void* ccv_cache_get(ccv_cache_t* cache, uint64_t sign);
-int ccv_cache_put(ccv_cache_t* cache, uint64_t sign, void* x, uint32_t size);
-void* ccv_cache_out(ccv_cache_t* cache, uint64_t sign);
+void ccv_cache_init(ccv_cache_t* cache, size_t up, int cache_types, ccv_cache_index_free_f ffree, ...);
+void* ccv_cache_get(ccv_cache_t* cache, uint64_t sign, uint8_t* type);
+int ccv_cache_put(ccv_cache_t* cache, uint64_t sign, void* x, uint32_t size, uint8_t type);
+void* ccv_cache_out(ccv_cache_t* cache, uint64_t sign, uint8_t* type);
 int ccv_cache_delete(ccv_cache_t* cache, uint64_t sign);
 void ccv_cache_cleanup(ccv_cache_t* cache);
 void ccv_cache_close(ccv_cache_t* cache);
@@ -202,16 +205,16 @@ typedef struct {
 
 /* matrix memory operations ccv_memory.c */
 #define ccv_compute_dense_matrix_size(rows, cols, type) (sizeof(ccv_dense_matrix_t) + (((cols) * CCV_GET_DATA_TYPE_SIZE(type) * CCV_GET_CHANNEL(type) + 3) & -4) * (rows))
-ccv_dense_matrix_t* ccv_dense_matrix_renew(ccv_dense_matrix_t* x, int rows, int cols, int types, int prefer_type, uint64_t sig);
-ccv_dense_matrix_t* ccv_dense_matrix_new(int rows, int cols, int type, void* data, uint64_t sig);
+ccv_dense_matrix_t* __attribute__((warn_unused_result)) ccv_dense_matrix_renew(ccv_dense_matrix_t* x, int rows, int cols, int types, int prefer_type, uint64_t sig);
+ccv_dense_matrix_t* __attribute__((warn_unused_result)) ccv_dense_matrix_new(int rows, int cols, int type, void* data, uint64_t sig);
 ccv_dense_matrix_t ccv_dense_matrix(int rows, int cols, int type, void* data, uint64_t sig);
 void ccv_make_matrix_mutable(ccv_matrix_t* mat);
 void ccv_make_matrix_immutable(ccv_matrix_t* mat);
-ccv_sparse_matrix_t* ccv_sparse_matrix_new(int rows, int cols, int type, int major, uint64_t sig);
+ccv_sparse_matrix_t* __attribute__((warn_unused_result)) ccv_sparse_matrix_new(int rows, int cols, int type, int major, uint64_t sig);
 void ccv_matrix_free_immediately(ccv_matrix_t* mat);
 void ccv_matrix_free(ccv_matrix_t* mat);
 
-uint64_t ccv_matrix_generate_signature(const char* msg, int len, uint64_t sig_start, ...);
+uint64_t ccv_cache_generate_signature(const char* msg, int len, uint64_t sig_start, ...);
 
 #define CCV_DEFAULT_CACHE_SIZE (1024 * 1024 * 64)
 
@@ -257,18 +260,41 @@ void ccv_enable_cache(size_t size);
 /* basic io ccv_io.c */
 
 enum {
-	CCV_IO_GRAY           = 0x100,
-	CCV_IO_COLOR          = 0x300,
+	// modifier for converting to gray-scale
+	CCV_IO_GRAY      = 0x100,
+	// modifier for converting to color
+	CCV_IO_RGB_COLOR = 0x300,
+};
+
+enum {
+	// modifier for not copy the data over when read raw in-memory data
+	CCV_IO_NO_COPY = 0x10000,
+};
+
+enum {
+	// read self-describe in-memory data
 	CCV_IO_ANY_STREAM     = 0x010,
-	CCV_IO_PLAIN_STREAM   = 0x011,
-	CCV_IO_DEFLATE_STREAM = 0x012,
-	CCV_IO_JPEG_STREAM    = 0x013,
-	CCV_IO_PNG_STREAM     = 0x014,
+	CCV_IO_BMP_STREAM     = 0x011,
+	CCV_IO_JPEG_STREAM    = 0x012,
+	CCV_IO_PNG_STREAM     = 0x013,
+	CCV_IO_PLAIN_STREAM   = 0x014,
+	CCV_IO_DEFLATE_STREAM = 0x015,
+	// read self-describe on-disk data
 	CCV_IO_ANY_FILE       = 0x020,
 	CCV_IO_BMP_FILE       = 0x021,
 	CCV_IO_JPEG_FILE      = 0x022,
 	CCV_IO_PNG_FILE       = 0x023,
 	CCV_IO_BINARY_FILE    = 0x024,
+	// read not-self-describe in-memory data (a.k.a. raw data)
+	// you need to specify rows, cols, or scanline for these data
+	CCV_IO_ANY_RAW        = 0x040,
+	CCV_IO_RGB_RAW        = 0x041,
+	CCV_IO_RGBA_RAW       = 0x042,
+	CCV_IO_ARGB_RAW       = 0x043,
+	CCV_IO_BGR_RAW        = 0x044,
+	CCV_IO_BGRA_RAW       = 0x045,
+	CCV_IO_ABGR_RAW       = 0x046,
+	CCV_IO_GRAY_RAW       = 0x047,
 };
 
 enum {
@@ -276,9 +302,17 @@ enum {
 	CCV_IO_CONTINUE,
 	CCV_IO_ERROR,
 	CCV_IO_ATTEMPTED,
+	CCV_IO_UNKNOWN,
 };
 
-int ccv_read(const char* in, ccv_dense_matrix_t** x, int type);
+int ccv_read_impl(const void* in, ccv_dense_matrix_t** x, int type, int rows, int cols, int scanline);
+#define ccv_read_n(in, x, type, rows, cols, scanline, ...) \
+	ccv_read_impl(in, x, type, rows, cols, scanline)
+#define ccv_read(in, x, type, ...) \
+	ccv_read_n(in, x, type, ##__VA_ARGS__, 0, 0, 0)
+// this is a way to implement function-signature based dispatch, you can call either
+// ccv_read(in, x, type) or ccv_read(in, x, type, rows, cols, scanline)
+// notice that you can implement this with va_* functions, but that is not type-safe
 int ccv_write(ccv_dense_matrix_t* mat, char* out, int* len, int type, void* conf);
 
 /* basic algebra algorithms ccv_algebra.c */
@@ -286,8 +320,8 @@ int ccv_write(ccv_dense_matrix_t* mat, char* out, int* len, int type, void* conf
 double ccv_trace(ccv_matrix_t* mat);
 
 enum {
-	CCV_L2_NORM  = 0x01, // |dx| + |dy|
-	CCV_L1_NORM  = 0x02, // sqrt(dx^2 + dy^2)
+	CCV_L1_NORM  = 0x01, // |dx| + |dy|
+	CCV_L2_NORM  = 0x02, // sqrt(dx^2 + dy^2)
 	CCV_GSEDT    = 0x04, // Generalized Squared Euclidean Distance Transform:
 						 // a * dx + b * dy + c * dx^2 + d * dy^2, when combined with CCV_L1_NORM:
 						 // a * |dx| + b * |dy| + c * dx^2 + d * dy^2
@@ -312,6 +346,7 @@ double ccv_normalize(ccv_matrix_t* a, ccv_matrix_t** b, int btype, int flag);
 void ccv_sat(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, int padding_pattern);
 double ccv_dot(ccv_matrix_t* a, ccv_matrix_t* b);
 double ccv_sum(ccv_matrix_t* mat, int flag);
+double ccv_variance(ccv_matrix_t* mat);
 void ccv_multiply(ccv_matrix_t* a, ccv_matrix_t* b, ccv_matrix_t** c, int type);
 void ccv_subtract(ccv_matrix_t* a, ccv_matrix_t* b, ccv_matrix_t** c, int type);
 
@@ -357,6 +392,11 @@ inline static ccv_size_t ccv_size(int width, int height)
 	return size;
 }
 
+inline static int ccv_size_is_zero(ccv_size_t size)
+{
+	return size.width == 0 && size.height == 0;
+}
+
 typedef struct {
 	int x;
 	int y;
@@ -374,19 +414,30 @@ inline static ccv_rect_t ccv_rect(int x, int y, int width, int height)
 	return rect;
 }
 
+inline static int ccv_rect_is_zero(ccv_rect_t rect)
+{
+	return rect.x == 0 && rect.y == 0 && rect.width == 0 && rect.height == 0;
+}
+
 typedef struct {
+	int type;
+	uint64_t sig;
+	int refcount;
 	int rnum;
 	int size;
 	int rsize;
 	void* data;
 } ccv_array_t;
 
-ccv_array_t* ccv_array_new(int rnum, int rsize);
+ccv_array_t* __attribute__((warn_unused_result)) ccv_array_new(int rsize, int rnum, uint64_t sig);
 void ccv_array_push(ccv_array_t* array, void* r);
 typedef int(*ccv_array_group_f)(const void*, const void*, void*);
 int ccv_array_group(ccv_array_t* array, ccv_array_t** index, ccv_array_group_f gfunc, void* data);
+void ccv_make_array_immutable(ccv_array_t* array);
+void ccv_make_array_mutable(ccv_array_t* array);
 void ccv_array_zero(ccv_array_t* array);
 void ccv_array_clear(ccv_array_t* array);
+void ccv_array_free_immediately(ccv_array_t* array);
 void ccv_array_free(ccv_array_t* array);
 
 #define ccv_array_get(a, i) (((char*)((a)->data)) + (a)->rsize * (i))
@@ -398,6 +449,18 @@ typedef struct {
 inline static ccv_point_t ccv_point(int x, int y)
 {
 	ccv_point_t point;
+	point.x = x;
+	point.y = y;
+	return point;
+}
+
+typedef struct {
+	float x, y;
+} ccv_decimal_point_t;
+
+inline static ccv_decimal_point_t ccv_decimal_point(float x, float y)
+{
+	ccv_decimal_point_t point;
 	point.x = x;
 	point.y = y;
 	return point;
@@ -455,17 +518,6 @@ void ccv_sobel(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, int dx, 
 void ccv_gradient(ccv_dense_matrix_t* a, ccv_dense_matrix_t** theta, int ttype, ccv_dense_matrix_t** m, int mtype, int dx, int dy);
 
 enum {
-	CCV_INTER_AREA    = 0x01,
-	CCV_INTER_LINEAR  = 0X02,
-	CCV_INTER_CUBIC   = 0X03,
-	CCV_INTER_LANCZOS = 0X04,
-};
-
-void ccv_resample(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int btype, int rows, int cols, int type);
-void ccv_sample_down(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, int src_x, int src_y);
-void ccv_sample_up(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, int src_x, int src_y);
-
-enum {
 	CCV_FLIP_X = 0x01,
 	CCV_FLIP_Y = 0x02,
 };
@@ -473,12 +525,45 @@ enum {
 void ccv_flip(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int btype, int type);
 void ccv_blur(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, double sigma);
 
+enum {
+	CCV_RGB_TO_YUV = 0x01,
+};
+
+void ccv_color_transform(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, int flag);
+
+/* resample algorithms ccv_resample.c */
+
+enum {
+	CCV_INTER_AREA    = 0x01,
+	CCV_INTER_LINEAR  = 0X02,
+	CCV_INTER_CUBIC   = 0X04,
+	CCV_INTER_LANCZOS = 0X08,
+};
+
+void ccv_resample(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int btype, int rows, int cols, int type);
+void ccv_sample_down(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, int src_x, int src_y);
+void ccv_sample_up(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, int src_x, int src_y);
+
+/* transformation algorithms ccv_transform.c */
+
+void ccv_decimal_slice(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, float y, float x, int rows, int cols);
+ccv_decimal_point_t ccv_perspective_transform_apply(ccv_decimal_point_t point, ccv_size_t size, float m00, float m01, float m02, float m10, float m11, float m12, float m20, float m21, float m22);
+void ccv_perspective_transform(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, float m00, float m01, float m02, float m10, float m11, float m12, float m20, float m21, float m22);
+
 /* classic computer vision algorithms ccv_classic.c */
 
 void ccv_hog(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int b_type, int sbin, int size);
 void ccv_canny(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, int size, double low_thresh, double high_thresh);
+void ccv_close_outline(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type);
 /* range: exclusive, return value: inclusive (i.e., threshold = 5, 0~5 is background, 6~range-1 is foreground */
 int ccv_otsu(ccv_dense_matrix_t* a, double* outvar, int range);
+
+typedef struct {
+	ccv_decimal_point_t point;
+	uint8_t status;
+} ccv_decimal_point_with_status_t;
+
+void ccv_optical_flow_lucas_kanade(ccv_dense_matrix_t* a, ccv_dense_matrix_t* b, ccv_array_t* point_a, ccv_array_t** point_b, ccv_size_t win_size, int level, double min_eigen);
 
 /* modern computer vision algorithms */
 /* SIFT, DAISY, SWT, MSER, DPM, BBF, SGF, SSD, FAST */
@@ -527,21 +612,60 @@ typedef struct {
 	float norm_threshold;
 } ccv_sift_param_t;
 
+extern const ccv_sift_param_t ccv_sift_default_params;
+
 void ccv_sift(ccv_dense_matrix_t* a, ccv_array_t** keypoints, ccv_dense_matrix_t** desc, int type, ccv_sift_param_t params);
+
+/* mser related method */
+
+typedef struct {
+	/* parameters for MSER */
+	int delta;
+	int min_area; /* default: 60 */
+	int direction; /* default: 0, 0 for both, -1 for bright to dark, 1 for dark to bright */
+	int max_area;
+	double max_variance;
+	double min_diversity;
+	int range; /* from 0 to range, inclusive */
+	/* parameters for MSCR */
+	double area_threshold; /* default: 1.01 */
+	double min_margin; /* default: 0.003 */
+	int max_evolution;
+	double edge_blur_sigma; /* default: 1.0 */
+} ccv_mser_param_t;
+
+typedef struct {
+	ccv_rect_t rect;
+	int size;
+	long m10, m01, m11, m20, m02;
+	ccv_point_t keypoint;
+} ccv_mser_keypoint_t;
+
+enum {
+	CCV_BRIGHT_TO_DARK = -1,
+	CCV_DARK_TO_BRIGHT = 1,
+};
+
+ccv_array_t* __attribute__((warn_unused_result)) ccv_mser(ccv_dense_matrix_t* a, ccv_dense_matrix_t* h, ccv_dense_matrix_t** b, int type, ccv_mser_param_t params);
 
 /* swt related method: stroke width transform is relatively new, typically used in text detection */
 typedef struct {
-	int up2x;
+	int interval; // for scale invariant option
+	int min_neighbors; // minimal neighbors to make a detection valid, this is for scale-invariant version
+	int scale_invariant; // enable scale invariant swt (to scale to different sizes and then combine the results)
 	int direction;
+	double same_word_thresh[2]; // overlapping more than 0.1 of the bigger one (0), and 0.9 of the smaller one (1)
 	/* canny parameters */
 	int size;
-	double low_thresh;
-	double high_thresh;
+	int low_thresh;
+	int high_thresh;
 	/* geometry filtering parameters */
 	int max_height;
 	int min_height;
+	int min_area;
+	int letter_occlude_thresh;
 	double aspect_ratio;
-	double variance_ratio;
+	double std_ratio;
 	/* grouping parameters */
 	double thickness_ratio;
 	double height_ratio;
@@ -555,8 +679,10 @@ typedef struct {
 	double breakdown_ratio;
 } ccv_swt_param_t;
 
+extern const ccv_swt_param_t ccv_swt_default_params;
+
 void ccv_swt(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, ccv_swt_param_t params);
-ccv_array_t* ccv_swt_detect_words(ccv_dense_matrix_t* a, ccv_swt_param_t params);
+ccv_array_t* __attribute__((warn_unused_result)) ccv_swt_detect_words(ccv_dense_matrix_t* a, ccv_swt_param_t params);
 
 /* I'd like to include Deformable Part Models as a general object detection method in here
  * The difference between BBF and DPM:
@@ -618,7 +744,9 @@ typedef struct {
 	int max_area; // 5000
 	int iterations;
 	int data_minings;
+	int root_relabels;
 	int relabels;
+	int discard_estimating_constant; // 1
 	int negative_cache_size; // 1000
 	double include_overlap; // 0.7
 	double alpha;
@@ -633,9 +761,11 @@ enum {
 	CCV_DPM_NO_NESTED = 0x10000000,
 };
 
+extern const ccv_dpm_param_t ccv_dpm_default_params;
+
 void ccv_dpm_mixture_model_new(char** posfiles, ccv_rect_t* bboxes, int posnum, char** bgfiles, int bgnum, int negnum, const char* dir, ccv_dpm_new_param_t params);
-ccv_array_t* ccv_dpm_detect_objects(ccv_dense_matrix_t* a, ccv_dpm_mixture_model_t** model, int count, ccv_dpm_param_t params);
-ccv_dpm_mixture_model_t* ccv_load_dpm_mixture_model(const char* directory);
+ccv_array_t* __attribute__((warn_unused_result)) ccv_dpm_detect_objects(ccv_dense_matrix_t* a, ccv_dpm_mixture_model_t** model, int count, ccv_dpm_param_t params);
+ccv_dpm_mixture_model_t* __attribute__((warn_unused_result)) ccv_load_dpm_mixture_model(const char* directory);
 void ccv_dpm_mixture_model_free(ccv_dpm_mixture_model_t* model);
 
 /* this is open source implementation of object detection algorithm: brightness binary feature
@@ -696,14 +826,130 @@ enum {
 	CCV_BBF_NO_NESTED = 0x10000000,
 };
 
+extern const ccv_bbf_param_t ccv_bbf_default_params;
+
 void ccv_bbf_classifier_cascade_new(ccv_dense_matrix_t** posimg, int posnum, char** bgfiles, int bgnum, int negnum, ccv_size_t size, const char* dir, ccv_bbf_new_param_t params);
-ccv_array_t* ccv_bbf_detect_objects(ccv_dense_matrix_t* a, ccv_bbf_classifier_cascade_t** cascade, int count, ccv_bbf_param_t params);
-ccv_bbf_classifier_cascade_t* ccv_load_bbf_classifier_cascade(const char* directory);
-ccv_bbf_classifier_cascade_t* ccv_bbf_classifier_cascade_read_binary(char* s);
+ccv_array_t* __attribute__((warn_unused_result)) ccv_bbf_detect_objects(ccv_dense_matrix_t* a, ccv_bbf_classifier_cascade_t** cascade, int count, ccv_bbf_param_t params);
+ccv_bbf_classifier_cascade_t* __attribute__((warn_unused_result)) ccv_load_bbf_classifier_cascade(const char* directory);
+ccv_bbf_classifier_cascade_t* __attribute__((warn_unused_result)) ccv_bbf_classifier_cascade_read_binary(char* s);
 int ccv_bbf_classifier_cascade_write_binary(ccv_bbf_classifier_cascade_t* cascade, char* s, int slen);
 void ccv_bbf_classifier_cascade_free(ccv_bbf_classifier_cascade_t* cascade);
 
-/* modern machine learning algorithms */
-/* RBM, LLE, APCluster */
+/* Ferns classifier: this is a fern implementation that specifically used for TLD
+ * see: http://cvlab.epfl.ch/alumni/oezuysal/ferns.html for more about ferns */
+
+typedef struct {
+	int structs;
+	int features;
+	int scales;
+	int posteriors;
+	float threshold;
+	int cnum[2];
+	int* rnum;
+	float* posterior;
+	// decided to go flat organized fern so that we can profiling different memory layout impacts the performance
+	ccv_point_t fern[1];
+} ccv_ferns_t;
+
+ccv_ferns_t* __attribute__((warn_unused_result)) ccv_ferns_new(int structs, int features, int scales, ccv_size_t* sizes);
+void ccv_ferns_feature(ccv_ferns_t* ferns, ccv_dense_matrix_t* a, int scale, uint32_t* fern);
+void ccv_ferns_correct(ccv_ferns_t* ferns, uint32_t* fern, int c, int repeat);
+float ccv_ferns_predict(ccv_ferns_t* ferns, uint32_t* fern);
+void ccv_ferns_free(ccv_ferns_t* ferns);
+
+/* TLD: Track-Learn-Detection is a long-term object tracking framework, which achieved very high
+ * tracking accuracy, this is the tracking algorithm of choice ccv implements */
+
+typedef struct {
+	/* short-term lucas-kanade tracking parameters */
+	ccv_size_t win_size;
+	int level;
+	float min_eigen;
+	float min_forward_backward_error;
+	/* image pyramid (different resolution) generation parameters */
+	int interval;
+	float shift;
+	/* samples generation parameters */
+	int min_win;
+	float include_overlap;
+	float exclude_overlap;
+	/* fern classifier setting */
+	int structs;
+	int features;
+	/* nearest neighbor thresholds */
+	float validate_set; // 0.5 for conservative confidence
+	float nnc_same; // the same object
+	float nnc_thres; // highly correlated
+	float nnc_verify; // correlated with tracking
+	float nnc_beyond; // this is the cap of nnc_thres
+	float nnc_collect; // modest correlated, worth to collect as negative example
+	int bad_patches; // number of bad patches
+	/* deformation round */
+	int new_deform;
+	int track_deform;
+	float new_deform_angle;
+	float track_deform_angle;
+	float new_deform_scale;
+	float track_deform_scale;
+	float new_deform_shift;
+	float track_deform_shift;
+	/* top detections */
+	int top_n;
+	/* speed up technique, instead of running slide window at
+	 * every frame, we will rotate them, for example, slide window 1
+	 * only gets examined at frame % rotation == 1 */
+	int rotation;
+} ccv_tld_param_t;
+
+extern const ccv_tld_param_t ccv_tld_default_params;
+
+typedef struct {
+	ccv_tld_param_t params;
+	ccv_comp_t box; // tracking comp
+	ccv_ferns_t* ferns; // ferns classifier
+	ccv_array_t* sv[2]; // example-based classifier
+	ccv_size_t patch; // resized to patch for example-based classifier
+	int found; // if the last time found a valid box
+	int verified; // the last frame is verified, therefore, a successful tracking is verified too
+	ccv_array_t* top; // top matches
+	float ferns_thres; // computed dynamically from negative examples
+	float nnc_thres; // computed dynamically from negative examples
+	float nnc_verify_thres; // computed dynamically from negative examples
+	double var_thres; // computed dynamically from the supplied same
+	uint64_t frame_signature;
+	int count;
+	void* sfmt;
+	void* dsfmt;
+	uint32_t fern_buffer[1]; // fetched ferns from image, this is a buffer
+} ccv_tld_t;
+
+typedef struct {
+	int perform_track;
+	int perform_learn;
+	int track_success;
+	int ferns_detects;
+	int nnc_detects;
+	int clustered_detects;
+	int confident_matches;
+	int close_matches;
+} ccv_tld_info_t;
+
+ccv_tld_t* __attribute__((warn_unused_result)) ccv_tld_new(ccv_dense_matrix_t* a, ccv_rect_t box, ccv_tld_param_t params);
+ccv_comp_t ccv_tld_track_object(ccv_tld_t* tld, ccv_dense_matrix_t* a, ccv_dense_matrix_t* b, ccv_tld_info_t* info);
+void ccv_tld_free(ccv_tld_t* tld);
+
+/* ICF: Integrate Channels Features, this is a theorized framework that retrospectively incorporates the original
+ * Viola-Jones detection method with various enhancement later. Specifically, this implementation is after:
+ * Pedestrian detection at 100 frames per second, Rodrigo Benenson, Markus Mathias, Radu Timofte and Luc Van Gool
+ * With WFS (width first search) tree from:
+ * High-Performance Rotation Invariant Multiview Face Detection, Chang Huang, Haizhou Ai, Yuan Li and Shihong Lao */
+
+typedef struct {
+} ccv_icf_classifier_t;
+
+typedef struct {
+} ccv_icf_param_t;
+
+ccv_array_t* __attribute__((warn_unused_result)) ccv_icf_detect_objects(ccv_dense_matrix_t* a, ccv_icf_classifier_t** classifier, int count, ccv_icf_param_t params);
 
 #endif

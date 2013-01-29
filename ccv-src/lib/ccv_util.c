@@ -22,9 +22,9 @@ ccv_sparse_matrix_t* ccv_get_sparse_matrix(ccv_matrix_t* mat)
 void ccv_visualize(ccv_matrix_t* a, ccv_dense_matrix_t** b, int type)
 {
 	ccv_dense_matrix_t* da = ccv_get_dense_matrix(a);
-	ccv_declare_matrix_signature(sig, da->sig != 0, ccv_sign_with_literal("ccv_visualize"), da->sig, 0);
+	ccv_declare_derived_signature(sig, da->sig != 0, ccv_sign_with_literal("ccv_visualize"), da->sig, CCV_EOF_SIGN);
 	ccv_dense_matrix_t* db = *b = ccv_dense_matrix_renew(*b, da->rows, da->cols, CCV_8U | CCV_C1, CCV_8U | CCV_C1, sig);
-	ccv_matrix_return_if_cached(, db);
+	ccv_object_return_if_cached(, db);
 	ccv_dense_matrix_t* dc = 0;
 	if (CCV_GET_CHANNEL(da->type) > CCV_C1)
 	{
@@ -91,11 +91,11 @@ int ccv_any_nan(ccv_matrix_t *a)
 void ccv_flatten(ccv_matrix_t* a, ccv_matrix_t** b, int type, int flag)
 {
 	ccv_dense_matrix_t* da = ccv_get_dense_matrix(a);
-	ccv_declare_matrix_signature(sig, da->sig != 0, ccv_sign_with_format(64, "ccv_flatten(%d)", flag), da->sig, 0);
+	ccv_declare_derived_signature(sig, da->sig != 0, ccv_sign_with_format(64, "ccv_flatten(%d)", flag), da->sig, CCV_EOF_SIGN);
 	int no_8u_type = (da->type & CCV_8U) ? CCV_32S : da->type;
 	type = (type == 0) ? CCV_GET_DATA_TYPE(no_8u_type) | CCV_C1 : CCV_GET_DATA_TYPE(type) | CCV_C1;
 	ccv_dense_matrix_t* db = *b = ccv_dense_matrix_renew(*b, da->rows, da->cols, CCV_ALL_DATA_TYPE | CCV_C1, type, sig);
-	ccv_matrix_return_if_cached(, db);
+	ccv_object_return_if_cached(, db);
 	int i, j, k, ch = CCV_GET_CHANNEL(da->type);
 	unsigned char* aptr = da->data.u8;
 	unsigned char* bptr = db->data.u8;
@@ -119,10 +119,10 @@ void ccv_flatten(ccv_matrix_t* a, ccv_matrix_t** b, int type, int flag)
 void ccv_shift(ccv_matrix_t* a, ccv_matrix_t** b, int type, int lr, int rr)
 {
 	ccv_dense_matrix_t* da = ccv_get_dense_matrix(a);
-	ccv_declare_matrix_signature(sig, da->sig != 0, ccv_sign_with_format(64, "ccv_shift(%d,%d)", lr, rr), da->sig, 0);
+	ccv_declare_derived_signature(sig, da->sig != 0, ccv_sign_with_format(64, "ccv_shift(%d,%d)", lr, rr), da->sig, CCV_EOF_SIGN);
 	type = (type == 0) ? CCV_GET_DATA_TYPE(da->type) | CCV_GET_CHANNEL(da->type) : CCV_GET_DATA_TYPE(type) | CCV_GET_CHANNEL(da->type);
 	ccv_dense_matrix_t* db = *b = ccv_dense_matrix_renew(*b, da->rows, da->cols, CCV_ALL_DATA_TYPE | CCV_GET_CHANNEL(da->type), type, sig); 
-	ccv_matrix_return_if_cached(, db);
+	ccv_object_return_if_cached(, db);
 	int i, j, ch = CCV_GET_CHANNEL(da->type);
 	unsigned char* aptr = da->data.u8;
 	unsigned char* bptr = db->data.u8;
@@ -396,7 +396,7 @@ void ccv_compress_sparse_matrix(ccv_sparse_matrix_t* mat, ccv_compressed_sparse_
 			if (mat->type & CCV_DENSE_VECTOR)
 			{
 				int k = 0;
-#define for_block(_for_set, _for_get) \
+#define for_block(_, _for_set, _for_get) \
 				for (j = 0; j < vector->length; j++) \
 					if (_for_get(vector->data.u8, j, 0) != 0) \
 					{ \
@@ -404,14 +404,14 @@ void ccv_compress_sparse_matrix(ccv_sparse_matrix_t* mat, ccv_compressed_sparse_
 						idx[k] = j; \
 						k++; \
 					}
-				ccv_matrix_setter(mat->type, ccv_matrix_getter, mat->type, for_block);
+				ccv_matrix_setter_getter(mat->type, for_block);
 #undef for_block
 				cm->offset[i + 1] = cm->offset[i] + k;
 				idx += k;
 				m_ptr += k * CCV_GET_DATA_TYPE_SIZE(mat->type);
 			} else {
 				int k = 0;
-#define for_block(_for_set, _for_get) \
+#define for_block(_, _for_set, _for_get) \
 				for (j = 0; j < vector->length; j++) \
 					if (vector->indice[j] != -1) \
 					{ \
@@ -419,7 +419,7 @@ void ccv_compress_sparse_matrix(ccv_sparse_matrix_t* mat, ccv_compressed_sparse_
 						idx[k] = vector->indice[j]; \
 						k++; \
 					}
-				ccv_matrix_setter(mat->type, ccv_matrix_getter, mat->type, for_block);
+				ccv_matrix_setter_getter(mat->type, for_block);
 #undef for_block
 				switch (CCV_GET_DATA_TYPE(mat->type))
 				{
@@ -498,10 +498,10 @@ void ccv_slice(ccv_matrix_t* a, ccv_matrix_t** b, int btype, int y, int x, int r
 	if (type & CCV_MATRIX_DENSE)
 	{
 		ccv_dense_matrix_t* da = ccv_get_dense_matrix(a);
-		ccv_declare_matrix_signature(sig, da->sig != 0, ccv_sign_with_format(128, "ccv_slice(%d,%d,%d,%d)", y, x, rows, cols), da->sig, 0);
+		ccv_declare_derived_signature(sig, da->sig != 0, ccv_sign_with_format(128, "ccv_slice(%d,%d,%d,%d)", y, x, rows, cols), da->sig, CCV_EOF_SIGN);
 		btype = (btype == 0) ? CCV_GET_DATA_TYPE(da->type) | CCV_GET_CHANNEL(da->type) : CCV_GET_DATA_TYPE(btype) | CCV_GET_CHANNEL(da->type);
 		ccv_dense_matrix_t* db = *b = ccv_dense_matrix_renew(*b, rows, cols, CCV_ALL_DATA_TYPE | CCV_GET_CHANNEL(da->type), btype, sig);
-		ccv_matrix_return_if_cached(, db);
+		ccv_object_return_if_cached(, db);
 		int i, j, ch = CCV_GET_CHANNEL(da->type);
 		int dx = 0, dy = 0;
 		if (!(y >= 0 && y + rows <= da->rows && x >= 0 && x + cols <= da->cols))
@@ -514,7 +514,7 @@ void ccv_slice(ccv_matrix_t* a, ccv_matrix_t** b, int btype, int y, int x, int r
 		}
 		unsigned char* a_ptr = da->data.u8 + x * ch * CCV_GET_DATA_TYPE_SIZE(da->type) + y * da->step;
 		unsigned char* b_ptr = db->data.u8 + dx * ch * CCV_GET_DATA_TYPE_SIZE(db->type) + dy * db->step;
-#define for_block(_, _for_set, _for_get) \
+#define for_block(_for_set, _for_get) \
 		for (i = 0; i < rows; i++) \
 		{ \
 			for (j = 0; j < cols * ch; j++) \
@@ -524,7 +524,7 @@ void ccv_slice(ccv_matrix_t* a, ccv_matrix_t** b, int btype, int y, int x, int r
 			a_ptr += da->step; \
 			b_ptr += db->step; \
 		}
-		ccv_matrix_setter_getter(da->type, for_block);
+		ccv_matrix_setter(db->type, ccv_matrix_getter, da->type, for_block);
 #undef for_block
 	} else if (type & CCV_MATRIX_SPARSE) {
 	}
@@ -536,14 +536,14 @@ void ccv_move(ccv_matrix_t* a, ccv_matrix_t** b, int btype, int y, int x)
 	if (type & CCV_MATRIX_DENSE)
 	{
 		ccv_dense_matrix_t* da = ccv_get_dense_matrix(a);
-		ccv_declare_matrix_signature(sig, da->sig != 0, ccv_sign_with_format(64, "ccv_move(%d,%d)", y, x), da->sig, 0);
+		ccv_declare_derived_signature(sig, da->sig != 0, ccv_sign_with_format(64, "ccv_move(%d,%d)", y, x), da->sig, CCV_EOF_SIGN);
 		btype = (btype == 0) ? CCV_GET_DATA_TYPE(da->type) | CCV_GET_CHANNEL(da->type) : CCV_GET_DATA_TYPE(btype) | CCV_GET_CHANNEL(da->type);
 		ccv_dense_matrix_t* db = *b = ccv_dense_matrix_renew(*b, da->rows, da->cols, CCV_ALL_DATA_TYPE | CCV_GET_CHANNEL(da->type), btype, sig);
-		ccv_matrix_return_if_cached(, db);
+		ccv_object_return_if_cached(, db);
 		int i, j, ch = CCV_GET_CHANNEL(da->type);
 		unsigned char* a_ptr = da->data.u8 + ccv_max(x, 0) * ch * CCV_GET_DATA_TYPE_SIZE(da->type) + ccv_max(y, 0) * da->step;
 		unsigned char* b_ptr = db->data.u8 + ccv_max(-x, 0) * ch * CCV_GET_DATA_TYPE_SIZE(db->type) + ccv_max(-y, 0) * db->step;
-#define for_block(_, _for_set, _for_get) \
+#define for_block(_for_set, _for_get) \
 		for (i = abs(y); i < db->rows; i++) \
 		{ \
 			for (j = abs(x) * ch; j < db->cols * ch; j++) \
@@ -553,20 +553,10 @@ void ccv_move(ccv_matrix_t* a, ccv_matrix_t** b, int btype, int y, int x)
 			a_ptr += da->step; \
 			b_ptr += db->step; \
 		}
-		ccv_matrix_setter_getter(da->type, for_block);
+		ccv_matrix_setter(db->type, ccv_matrix_getter, da->type, for_block);
 #undef for_block
 	} else if (type & CCV_MATRIX_SPARSE) {
 	}
-}
-
-ccv_array_t* ccv_array_new(int rnum, int rsize)
-{
-	ccv_array_t* array = (ccv_array_t*)ccmalloc(sizeof(ccv_array_t));
-	array->rnum = 0;
-	array->rsize = rsize;
-	array->size = rnum;
-	array->data = ccmalloc(rnum * rsize);
-	return array;
 }
 
 void ccv_array_push(ccv_array_t* array, void* r)
@@ -588,12 +578,6 @@ void ccv_array_zero(ccv_array_t* array)
 void ccv_array_clear(ccv_array_t* array)
 {
 	array->rnum = 0;
-}
-
-void ccv_array_free(ccv_array_t* array)
-{
-	ccfree(array->data);
-	ccfree(array);
 }
 
 typedef struct ccv_ptree_node_t
@@ -663,7 +647,7 @@ int ccv_array_group(ccv_array_t* array, ccv_array_t** index, ccv_array_group_f g
 		}
 	}
 	if (*index == 0)
-		*index = ccv_array_new(array->rnum, sizeof(int));
+		*index = ccv_array_new(sizeof(int), array->rnum, 0);
 	else
 		ccv_array_clear(*index);
 	ccv_array_t* idx = *index;
@@ -694,7 +678,7 @@ ccv_contour_t* ccv_contour_new(int set)
 	contour->rect.width = contour->rect.height = 0;
 	contour->size = 0;
 	if (set)
-		contour->set = ccv_array_new(5, sizeof(ccv_point_t));
+		contour->set = ccv_array_new(sizeof(ccv_point_t), 5, 0);
 	else
 		contour->set = 0;
 	return contour;

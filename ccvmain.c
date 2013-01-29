@@ -16,4 +16,5 @@
 #include "ccv-src/lib/ccv_io.c"
 #include "ccv-src/lib/ccv_sift.c"
 #include "ccv-src/lib/ccv_bbf.c"
+#include "ccv-src/lib/ccv_resample.c"
 #include <ctype.h>

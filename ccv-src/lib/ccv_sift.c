@@ -1,16 +1,45 @@
 /* The code is adopted from VLFeat with heavily rewrite.
- * The original code is licenced under GPLv2, should be compatible
- * with New BSD Licence used by ccv. The original Copyright:
+ * The original code is licenced under 2-clause BSD license,
+ * should be compatible with New BSD Licence used by ccv.
+ * The original Copyright:
  *
- * AUTORIGHTS
- * Copyright (C) 2007-10 Andrea Vedaldi and Brian Fulkerson
+ * Copyright (C) 2007-12, Andrea Vedaldi and Brian Fulkerson
+ * All rights reserved.
  *
- * This file is part of VLFeat, available under the terms of the
- * GNU GPLv2, or (at your option) any later version.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include "ccv.h"
 #include "ccv_internal.h"
+
+const ccv_sift_param_t ccv_sift_default_params = {
+	.noctaves = 3,
+	.nlevels = 6,
+	.up2x = 1,
+	.edge_threshold = 10,
+	.norm_threshold = 0,
+	.peak_threshold = 0,
+};
 
 inline static double _ccv_keypoint_interpolate(float N9[3][9], int ix, int iy, int is, ccv_keypoint_t* kp)
 {
@@ -34,7 +63,7 @@ inline static double _ccv_keypoint_interpolate(float N9[3][9], int ix, int iy, i
 	{
 		double maxa = 0;
 		double maxabsa = 0;
-		int maxi = -1;
+		int maxi = j;
 		double tmp;
 
 		/* look for the maximally stable pivot */
@@ -161,7 +190,7 @@ void ccv_sift(ccv_dense_matrix_t* a, ccv_array_t** _keypoints, ccv_dense_matrix_
 	ccv_array_t* keypoints = *_keypoints;
 	int custom_keypoints = 0;
 	if (keypoints == 0)
-		keypoints = *_keypoints = ccv_array_new(10, sizeof(ccv_keypoint_t));
+		keypoints = *_keypoints = ccv_array_new(sizeof(ccv_keypoint_t), 10, 0);
 	else
 		custom_keypoints = 1;
 	int i, j, k, x, y;

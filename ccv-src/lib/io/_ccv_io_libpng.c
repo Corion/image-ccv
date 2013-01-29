@@ -17,6 +17,7 @@ static void _ccv_read_png_fd(FILE* in, ccv_dense_matrix_t** x, int type)
 	if (im == 0)
 		*x = im = ccv_dense_matrix_new((int) height, (int) width, (type) ? type : CCV_8U | (((color_type & PNG_COLOR_MASK_COLOR) == PNG_COLOR_TYPE_GRAY) ? CCV_C1 : CCV_C3), 0, 0);
 
+	png_set_strip_16(png_ptr);
 	png_set_strip_alpha(png_ptr);
 	if (color_type == PNG_COLOR_TYPE_PALETTE)
 		png_set_palette_to_rgb(png_ptr);
@@ -35,6 +36,15 @@ static void _ccv_read_png_fd(FILE* in, ccv_dense_matrix_t** x, int type)
 		row_vectors[i] = im->data.u8 + i * im->step;
 	png_read_image(png_ptr, row_vectors);
 	png_read_end(png_ptr, 0);
+	int ch = CCV_GET_CHANNEL(im->type);
+	// empty out the padding
+	if (im->cols * ch < im->step)
+	{
+		size_t extra = im->step - im->cols * ch;
+		unsigned char* ptr = im->data.u8 + im->cols * ch;
+		for (i = 0; i < im->rows; i++, ptr += im->step)
+			memset(ptr, 0, extra);
+	}
 
 	png_destroy_read_struct(&png_ptr, &info_ptr, 0);
 }

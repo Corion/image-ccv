@@ -11,23 +11,25 @@ unsigned int get_current_time()
 
 int main(int argc, char** argv)
 {
-	ccv_swt_param_t params = { .size = 3, .low_thresh = 175, .high_thresh = 320, .max_height = 300, .min_height = 10, .aspect_ratio = 10, .variance_ratio = 0.5, .thickness_ratio = 1.5, .height_ratio = 2, .intensity_thresh = 30, .distance_ratio = 3, .intersect_ratio = 2, .letter_thresh = 3, .elongate_ratio = 1.3, .breakdown = 1, .breakdown_ratio = 12.8 };
 	ccv_enable_default_cache();
 	ccv_dense_matrix_t* image = 0;
 	ccv_read(argv[1], &image, CCV_IO_GRAY | CCV_IO_ANY_FILE);
 	if (image != 0)
 	{
 		unsigned int elapsed_time = get_current_time();
-		ccv_array_t* words = ccv_swt_detect_words(image, params);
+		ccv_array_t* words = ccv_swt_detect_words(image, ccv_swt_default_params);
 		elapsed_time = get_current_time() - elapsed_time;
-		int i;
-		for (i = 0; i < words->rnum; i++)
+		if (words)
 		{
-			ccv_rect_t* rect = (ccv_rect_t*)ccv_array_get(words, i);
-			printf("%d %d %d %d\n", rect->x, rect->y, rect->width, rect->height);
+			int i;
+			for (i = 0; i < words->rnum; i++)
+			{
+				ccv_rect_t* rect = (ccv_rect_t*)ccv_array_get(words, i);
+				printf("%d %d %d %d\n", rect->x, rect->y, rect->width, rect->height);
+			}
+			printf("total : %d in time %dms\n", words->rnum, elapsed_time);
+			ccv_array_free(words);
 		}
-		printf("total : %d in time %dms\n", words->rnum, elapsed_time);
-		ccv_array_free(words);
 		ccv_matrix_free(image);
 	} else {
 		FILE* r = fopen(argv[1], "rt");
@@ -35,18 +37,19 @@ int main(int argc, char** argv)
 			chdir(argv[2]);
 		if(r)
 		{
-			char file[1000 + 1];
-			while(fgets(file, 1000, r))
+			size_t len = 1024;
+			char* file = (char*)malloc(len);
+			ssize_t read;
+			while((read = getline(&file, &len, r)) != -1)
 			{
-				int len = (int)strlen(file);
-				while(len > 0 && isspace(file[len - 1]))
-					len--;
-				file[len] = '\0';
+				while(read > 1 && isspace(file[read - 1]))
+					read--;
+				file[read] = 0;
 				image = 0;
+				printf("%s\n", file);
 				ccv_read(file, &image, CCV_IO_GRAY | CCV_IO_ANY_FILE);
-				ccv_array_t* words = ccv_swt_detect_words(image, params);
+				ccv_array_t* words = ccv_swt_detect_words(image, ccv_swt_default_params);
 				int i;
-				printf("%s\n%d\n", file, words->rnum);
 				for (i = 0; i < words->rnum; i++)
 				{
 					ccv_rect_t* rect = (ccv_rect_t*)ccv_array_get(words, i);
@@ -55,10 +58,11 @@ int main(int argc, char** argv)
 				ccv_array_free(words);
 				ccv_matrix_free(image);
 			}
+			free(file);
 			fclose(r);
 		}
 	}
-	ccv_disable_cache();
+	ccv_drain_cache();
 	return 0;
 }
 

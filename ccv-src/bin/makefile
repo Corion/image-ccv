@@ -1,21 +1,27 @@
-CC = `cat ../lib/.CC`# -faddress-sanitizer -fno-omit-frame-pointer
-LDFLAGS = -L"../lib" -lccv `cat ../lib/.LN` -lm
-CFLAGS = -O1 -Wall -I"../lib" `cat ../lib/.DEF`
+<<<<<<< HEAD
+include ../lib/config.mk
+=======
+CC = `cat ../lib/.cc.conf`
+LDFLAGS = -L"../lib" -lccv `cat ../lib/.l.conf` -lm
+CFLAGS = -O3 -Wall -I"../lib" `cat ../lib/.def.conf`
+>>>>>>> added a simple config script
 
-TARGETS = bbffmt siftmatch bbfcreate bbfdetect swtcreate swtdetect dpmcreate dpmdetect convert
+#CC += -faddress-sanitizer -fno-omit-frame-pointer
+LDFLAGS := -L"../lib" -lccv $(LDFLAGS)
+CFLAGS := -O3 -Wall -I"../lib" $(CFLAGS)
+
+TARGETS = bbffmt msermatch siftmatch bbfcreate bbfdetect swtcreate swtdetect dpmcreate dpmdetect convert tld
 
 all: libccv.a $(TARGETS)
 
 clean:
-	${MAKE} clean -C ../lib ; rm *.o $(TARGETS)
+	${MAKE} clean -C ../lib ; rm -f *.o $(TARGETS)
 
 $(TARGETS): %: %.o libccv.a
-	@echo "$(CC) -o $@ $< $(LDFLAGS)"
-	@$(CC) -o $@ $< $(LDFLAGS)
+	$(CC) -o $@ $< $(LDFLAGS)
 
 libccv.a:
 	${MAKE} -C ../lib
 
 %.o: %.c ../lib/ccv.h
-	@echo "$(CC) $< -o $@ -c $(CFLAGS)"
-	@$(CC) $< -o $@ -c $(CFLAGS)
+	$(CC) $< -o $@ -c $(CFLAGS)
