@@ -12,6 +12,7 @@ static int _CCV_PRINT_LOOP __attribute__ ((unused)) = 0;
 /* simple utility functions */
 
 #define ccv_descale(x, n) (((x) + (1 << ((n) - 1))) >> (n))
+#define conditional_assert(x, expr) if ((x)) { assert(expr); }
 
 /* macro printf utilities */
 
@@ -123,6 +124,13 @@ static int _CCV_PRINT_LOOP __attribute__ ((unused)) = 0;
 	uint64_t INTERNAL_CATCH_UNIQUE_NAME(_ccv_temp_sig_) = 0; \
 	INTERNAL_EXPAND_MACRO_ARGUMENT_TO_LINE(__VA_ARGS__, INTERNAL_SEQ_PADDING_LINE()); \
 	uint64_t var = INTERNAL_CATCH_UNIQUE_NAME(_ccv_temp_sig_);
+
+/* the macros enable us to preserve state of the program at any point in a structure way, this is borrowed from coroutine idea */
+
+#define ccv_function_state_reserve_field int line_no;
+#define ccv_function_state_begin(reader, s, file) (reader)((file), &(s)); switch ((s).line_no) { case 0:;
+#define ccv_function_state_resume(writer, s, file) do { (s).line_no = __LINE__; (writer)(&(s), (file)); case __LINE__:; } while (0)
+#define ccv_function_state_finish() }
 
 /* the factor used to provide higher accuracy in integer type (all integer computation in some cases) */
 #define _ccv_get_32s_value(ptr, i, factor) (((int*)(ptr))[(i)] << factor)

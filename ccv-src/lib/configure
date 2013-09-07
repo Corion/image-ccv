@@ -176,7 +176,7 @@ else
 		case $yn in
 		[nN]* ) ;;
 		*	  ) CFLAGS="$CFLAGS-D HAVE_CBLAS "
-				LDFLAGS="$LDFLAGS-lblas "
+				LDFLAGS="$LDFLAGS-lcblas "
 				;;
 		esac
 	fi
@@ -185,6 +185,21 @@ else
 	case $yn in
 	[yY]* ) CFLAGS="$CFLAGS-D USE_OPENMP -fopenmp "
 			LDFLAGS="$LDFLAGS-lgomp "
+			;;
+	*	  ) ;;
+	esac
+	echo -ne "  Use \033[4mlibdispatch\033[m [y/N] ? "
+	read -n 1 yn ; if [ ! -z $yn ] ; then echo ; fi
+	case $yn in
+	[yY]* ) CFLAGS="$CFLAGS-D USE_DISPATCH -fblocks "
+			LDFLAGS="$LDFLAGS-ldispatch -lBlocksRuntime "
+			;;
+	*	  ) ;;
+	esac
+	echo -ne "  Run \033[4msanity assertion\033[m along side [y/N] ? "
+	read -n 1 yn ; if [ ! -z $yn ] ; then echo ; fi
+	case $yn in
+	[yY]* ) CFLAGS="$CFLAGS-D USE_SANITY_ASSERTION "
 			;;
 	*	  ) ;;
 	esac

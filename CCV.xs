@@ -155,7 +155,7 @@ myccv_detect_faces (filename, training_data)
 	ccv_enable_default_cache();
 	ccv_dense_matrix_t* image = 0;
 	/* TODO: Make the cascade accessible from the outside */
-	ccv_bbf_classifier_cascade_t* cascade = ccv_load_bbf_classifier_cascade(training_data);
+	ccv_bbf_classifier_cascade_t* cascade = ccv_bbf_read_classifier_cascade(training_data);
 	ccv_read(filename, &image, CCV_IO_GRAY | CCV_IO_ANY_FILE);
 	if (image != 0)
 	{

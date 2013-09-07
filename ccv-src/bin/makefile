@@ -10,7 +10,7 @@ CFLAGS = -O3 -Wall -I"../lib" `cat ../lib/.def.conf`
 LDFLAGS := -L"../lib" -lccv $(LDFLAGS)
 CFLAGS := -O3 -Wall -I"../lib" $(CFLAGS)
 
-TARGETS = bbffmt msermatch siftmatch bbfcreate bbfdetect swtcreate swtdetect dpmcreate dpmdetect convert tld
+TARGETS = bbffmt msermatch siftmatch bbfcreate bbfdetect swtcreate swtdetect dpmcreate dpmdetect convert tld icfcreate icfdetect icfoptimize
 
 all: libccv.a $(TARGETS)
 

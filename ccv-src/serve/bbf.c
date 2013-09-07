@@ -103,7 +103,7 @@ void* uri_bbf_detect_objects_parse(const void* context, void* parsed, int resour
 void* uri_bbf_detect_objects_init(void)
 {
 	bbf_context_t* context = (bbf_context_t*)malloc(sizeof(bbf_context_t));
-	context->face = ccv_load_bbf_classifier_cascade("../samples/face");
+	context->face = ccv_bbf_read_classifier_cascade("../samples/face");
 	assert(context->face);
 	assert(param_parser_map_alphabet(param_map, sizeof(param_map) / sizeof(param_dispatch_t)) == 0);
 	context->desc = param_parser_map_http_body(param_map, sizeof(param_map) / sizeof(param_dispatch_t),

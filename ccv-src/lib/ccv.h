@@ -28,6 +28,7 @@
 
 #define CCV_PI (3.141592653589793)
 #define ccmalloc malloc
+#define cccalloc calloc
 #define ccrealloc realloc
 #define ccfree free
 
@@ -358,6 +359,23 @@ enum {
 
 void ccv_gemm(ccv_matrix_t* a, ccv_matrix_t* b, double alpha, ccv_matrix_t* c, double beta, int transpose, ccv_matrix_t** d, int type);
 
+typedef struct {
+	int left;
+	int top;
+	int right;
+	int bottom;
+} ccv_margin_t;
+
+inline static ccv_margin_t ccv_margin(int left, int top, int right, int bottom)
+{
+	ccv_margin_t margin;
+	margin.left = left;
+	margin.top = top;
+	margin.right = right;
+	margin.bottom = bottom;
+	return margin;
+}
+
 /* matrix build blocks / utility functions ccv_util.c */
 
 ccv_dense_matrix_t* ccv_get_dense_matrix(ccv_matrix_t* mat);
@@ -370,8 +388,9 @@ void ccv_decompress_sparse_matrix(ccv_compressed_sparse_matrix_t* csm, ccv_spars
 
 void ccv_move(ccv_matrix_t* a, ccv_matrix_t** b, int btype, int y, int x);
 int ccv_matrix_eq(ccv_matrix_t* a, ccv_matrix_t* b);
-void ccv_slice(ccv_matrix_t* a, ccv_matrix_t** b, int type, int y, int x, int rows, int cols);
-void ccv_visualize(ccv_matrix_t* a, ccv_dense_matrix_t** b, int type);
+void ccv_slice(ccv_matrix_t* a, ccv_matrix_t** b, int btype, int y, int x, int rows, int cols);
+void ccv_border(ccv_matrix_t* a, ccv_matrix_t** b, int type, ccv_margin_t margin);
+void ccv_visualize(ccv_matrix_t* a, ccv_matrix_t** b, int type);
 void ccv_flatten(ccv_matrix_t* a, ccv_matrix_t** b, int type, int flag);
 void ccv_zero(ccv_matrix_t* mat);
 void ccv_shift(ccv_matrix_t* a, ccv_matrix_t** b, int type, int lr, int rr);
@@ -440,7 +459,7 @@ void ccv_array_clear(ccv_array_t* array);
 void ccv_array_free_immediately(ccv_array_t* array);
 void ccv_array_free(ccv_array_t* array);
 
-#define ccv_array_get(a, i) (((char*)((a)->data)) + (a)->rsize * (i))
+#define ccv_array_get(a, i) (((char*)((a)->data)) + (size_t)(a)->rsize * (size_t)(i))
 
 typedef struct {
 	int x, y;
@@ -464,6 +483,24 @@ inline static ccv_decimal_point_t ccv_decimal_point(float x, float y)
 	point.x = x;
 	point.y = y;
 	return point;
+}
+
+typedef struct {
+	float x, y, a, b;
+	float roll, pitch, yaw;
+} ccv_decimal_pose_t;
+
+inline static ccv_decimal_pose_t ccv_decimal_pose(float x, float y, float a, float b, float roll, float pitch, float yaw)
+{
+	ccv_decimal_pose_t pose;
+	pose.x = x;
+	pose.y = y;
+	pose.a = a;
+	pose.b = b;
+	pose.roll = roll;
+	pose.pitch = pitch;
+	pose.yaw = yaw;
+	return pose;
 }
 
 typedef struct {
@@ -684,6 +721,17 @@ extern const ccv_swt_param_t ccv_swt_default_params;
 void ccv_swt(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type, ccv_swt_param_t params);
 ccv_array_t* __attribute__((warn_unused_result)) ccv_swt_detect_words(ccv_dense_matrix_t* a, ccv_swt_param_t params);
 
+/* it makes sense now to include a simple data structure that encapsulate the common idiom of
+ * having file name with a bounding box */
+
+typedef struct {
+	char* filename;
+	union {
+		ccv_rect_t box;
+		ccv_decimal_pose_t pose;
+	};
+} ccv_file_info_t;
+
 /* I'd like to include Deformable Part Models as a general object detection method in here
  * The difference between BBF and DPM:
  * ~ BBF is for rigid object detection: banners, box, faces etc.
@@ -765,7 +813,7 @@ extern const ccv_dpm_param_t ccv_dpm_default_params;
 
 void ccv_dpm_mixture_model_new(char** posfiles, ccv_rect_t* bboxes, int posnum, char** bgfiles, int bgnum, int negnum, const char* dir, ccv_dpm_new_param_t params);
 ccv_array_t* __attribute__((warn_unused_result)) ccv_dpm_detect_objects(ccv_dense_matrix_t* a, ccv_dpm_mixture_model_t** model, int count, ccv_dpm_param_t params);
-ccv_dpm_mixture_model_t* __attribute__((warn_unused_result)) ccv_load_dpm_mixture_model(const char* directory);
+ccv_dpm_mixture_model_t* __attribute__((warn_unused_result)) ccv_dpm_read_mixture_model(const char* directory);
 void ccv_dpm_mixture_model_free(ccv_dpm_mixture_model_t* model);
 
 /* this is open source implementation of object detection algorithm: brightness binary feature
@@ -830,10 +878,10 @@ extern const ccv_bbf_param_t ccv_bbf_default_params;
 
 void ccv_bbf_classifier_cascade_new(ccv_dense_matrix_t** posimg, int posnum, char** bgfiles, int bgnum, int negnum, ccv_size_t size, const char* dir, ccv_bbf_new_param_t params);
 ccv_array_t* __attribute__((warn_unused_result)) ccv_bbf_detect_objects(ccv_dense_matrix_t* a, ccv_bbf_classifier_cascade_t** cascade, int count, ccv_bbf_param_t params);
-ccv_bbf_classifier_cascade_t* __attribute__((warn_unused_result)) ccv_load_bbf_classifier_cascade(const char* directory);
+ccv_bbf_classifier_cascade_t* __attribute__((warn_unused_result)) ccv_bbf_read_classifier_cascade(const char* directory);
+void ccv_bbf_classifier_cascade_free(ccv_bbf_classifier_cascade_t* cascade);
 ccv_bbf_classifier_cascade_t* __attribute__((warn_unused_result)) ccv_bbf_classifier_cascade_read_binary(char* s);
 int ccv_bbf_classifier_cascade_write_binary(ccv_bbf_classifier_cascade_t* cascade, char* s, int slen);
-void ccv_bbf_classifier_cascade_free(ccv_bbf_classifier_cascade_t* cascade);
 
 /* Ferns classifier: this is a fern implementation that specifically used for TLD
  * see: http://cvlab.epfl.ch/alumni/oezuysal/ferns.html for more about ferns */
@@ -938,18 +986,93 @@ ccv_tld_t* __attribute__((warn_unused_result)) ccv_tld_new(ccv_dense_matrix_t* a
 ccv_comp_t ccv_tld_track_object(ccv_tld_t* tld, ccv_dense_matrix_t* a, ccv_dense_matrix_t* b, ccv_tld_info_t* info);
 void ccv_tld_free(ccv_tld_t* tld);
 
-/* ICF: Integrate Channels Features, this is a theorized framework that retrospectively incorporates the original
+/* ICF: Integral Channels Features, this is a theorized framework that retrospectively incorporates the original
  * Viola-Jones detection method with various enhancement later. Specifically, this implementation is after:
  * Pedestrian detection at 100 frames per second, Rodrigo Benenson, Markus Mathias, Radu Timofte and Luc Van Gool
  * With WFS (width first search) tree from:
  * High-Performance Rotation Invariant Multiview Face Detection, Chang Huang, Haizhou Ai, Yuan Li and Shihong Lao */
 
-typedef struct {
-} ccv_icf_classifier_t;
+#define CCV_ICF_SAT_MAX (2)
 
 typedef struct {
+	int count;
+	int channel[CCV_ICF_SAT_MAX];
+	ccv_point_t sat[CCV_ICF_SAT_MAX * 2];
+	float alpha[CCV_ICF_SAT_MAX];
+	float beta;
+} ccv_icf_feature_t;
+
+typedef struct {
+	// we use depth-2 decision tree
+	uint32_t pass;
+	ccv_icf_feature_t features[3];
+	float weigh[2];
+	float threshold;
+} ccv_icf_decision_tree_t;
+
+enum {
+	CCV_ICF_CLASSIFIER_TYPE_A = 0x1,
+	CCV_ICF_CLASSIFIER_TYPE_B = 0x2,
+};
+
+typedef struct {
+	int type;
+	int count;
+	int grayscale;
+	ccv_margin_t margin;
+	ccv_size_t size; // this is the size includes the margin
+	ccv_icf_decision_tree_t* weak_classifiers;
+} ccv_icf_classifier_cascade_t; // Type A, scale image
+
+typedef struct {
+	int type;
+	int count;
+	int octave;
+	int grayscale;
+	ccv_icf_classifier_cascade_t* cascade;
+} ccv_icf_multiscale_classifier_cascade_t; // Type B, scale the classifier
+
+typedef struct {
+	int min_neighbors;
+	int flags;
+	int step_through;
+	int interval;
+	float threshold;
 } ccv_icf_param_t;
 
-ccv_array_t* __attribute__((warn_unused_result)) ccv_icf_detect_objects(ccv_dense_matrix_t* a, ccv_icf_classifier_t** classifier, int count, ccv_icf_param_t params);
+extern const ccv_icf_param_t ccv_icf_default_params;
+
+typedef struct {
+	ccv_icf_param_t detector;
+	int grayscale;
+	int min_dimension;
+	ccv_margin_t margin;
+	ccv_size_t size; // this is the size excludes the margin
+	int feature_size;
+	int weak_classifier;
+	int bootstrap;
+	float deform_angle;
+	float deform_scale;
+	float deform_shift;
+	double acceptance;
+} ccv_icf_new_param_t;
+
+void ccv_icf(ccv_dense_matrix_t* a, ccv_dense_matrix_t** b, int type);
+
+/* ICF for single scale */
+ccv_icf_classifier_cascade_t* __attribute__((warn_unused_result)) ccv_icf_classifier_cascade_new(ccv_array_t* posfiles, int posnum, ccv_array_t* bgfiles, int negnum, ccv_array_t* testfiles, const char* dir, ccv_icf_new_param_t params);
+void ccv_icf_classifier_cascade_soft(ccv_icf_classifier_cascade_t* cascade, ccv_array_t* posfiles, double acceptance);
+ccv_icf_classifier_cascade_t* __attribute__((warn_unused_result)) ccv_icf_read_classifier_cascade(const char* filename);
+void ccv_icf_write_classifier_cascade(ccv_icf_classifier_cascade_t* classifier, const char* filename);
+void ccv_icf_classifier_cascade_free(ccv_icf_classifier_cascade_t* classifier);
+
+/* ICF for multiple scale */
+ccv_icf_multiscale_classifier_cascade_t* __attribute__((warn_unused_result)) ccv_icf_multiscale_classifier_cascade_new(ccv_icf_classifier_cascade_t* cascades, int octave, int interval);
+ccv_icf_multiscale_classifier_cascade_t* __attribute__((warn_unused_result)) ccv_icf_read_multiscale_classifier_cascade(const char* directory);
+void ccv_icf_write_multiscale_classifier_cascade(ccv_icf_multiscale_classifier_cascade_t* classifier, const char* directory);
+void ccv_icf_multiscale_classifier_cascade_free(ccv_icf_multiscale_classifier_cascade_t* classifier);
+
+/* polymorph function to run ICF based detector */
+ccv_array_t* __attribute__((warn_unused_result)) ccv_icf_detect_objects(ccv_dense_matrix_t* a, void* cascade, int count, ccv_icf_param_t params);
 
 #endif
