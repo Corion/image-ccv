@@ -48,7 +48,7 @@ if( $is_Win32 ) {
 };
 # These should be the default everywhere, but aren't on my versions of Perl
 # (strawberry and Debian ./Configure -de)
-$ccflags = "-msse2 $ccflags";
+$ccflags = "-msse2 -fPIC $ccflags";
 
 my @LIBS = ($LIBS);
 
