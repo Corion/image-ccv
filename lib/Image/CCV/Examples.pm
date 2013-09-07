@@ -16,7 +16,7 @@ package Image::CCV::Examples;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 1;
 
@@ -62,7 +62,7 @@ The following is a list of the 3 example programs that are included in the Image
     use Image::CCV qw(detect_faces);
     
     use vars qw($VERSION);
-    $VERSION = '0.07';
+    $VERSION = '0.08';
     
     =head1 NAME
     
@@ -203,7 +203,7 @@ The following is a list of the 3 example programs that are included in the Image
         }
     }
 
-Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.07/examples/facecrop.pl>
+Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.08/examples/facecrop.pl>
 
 =head2 Example: facetest.pl
 
@@ -260,7 +260,7 @@ Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.07/ex
         }
     }
 
-Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.07/examples/facetest.pl>
+Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.08/examples/facetest.pl>
 
 =head2 Example: sifttest.pl
 
@@ -274,7 +274,7 @@ $out->rubthrough(
     use Image::CCV qw(sift);
     
     use vars qw($VERSION);
-    $VERSION = '0.07';
+    $VERSION = '0.08';
     
     my $scene  = "images/IMG_1229_bw_small.png";
     my $object = "images/IMG_1230_bw_sofa.png";
@@ -331,7 +331,7 @@ $out->rubthrough(
     $out->write( file => 'out.png' )
         or die $out->errstr;
 
-Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.07/examples/sifttest.pl>
+Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.08/examples/sifttest.pl>
 
 =head1 AUTHOR
 
