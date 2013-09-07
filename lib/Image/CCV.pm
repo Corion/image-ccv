@@ -4,7 +4,7 @@ require DynaLoader;
 use Carp qw(croak);
 use vars qw($VERSION @EXPORT @ISA);
 
-$VERSION = '0.07'; 
+$VERSION = '0.08'; 
 
 @EXPORT = qw(sift detect_faces );
 
