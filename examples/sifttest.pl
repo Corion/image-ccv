@@ -6,7 +6,7 @@ use List::Util qw(max);
 use Image::CCV qw(sift);
 
 use vars qw($VERSION);
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 my $scene  = "images/IMG_1229_bw_small.png";
 my $object = "images/IMG_1230_bw_sofa.png";
