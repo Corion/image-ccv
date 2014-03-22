@@ -2,6 +2,9 @@
 # TODO: Add FAQ.pm
 # TODO: Document examples
 
+0.09 20140322
+    . Clean up MANIFEST, some files were not packaged
+
 0.08 20130907
     . New upstream release merged
       Sorry, no features included...
