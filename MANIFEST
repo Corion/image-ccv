@@ -108,6 +108,7 @@ ccv-src/samples/face/stage-6.txt
 ccv-src/samples/face/stage-7.txt
 ccv-src/samples/face/stage-8.txt
 ccv-src/samples/face/stage-9.txt
+ccv-src/samples/pedestrian.m
 ccv-src/serve/async.c
 ccv-src/serve/async.h
 ccv-src/serve/bbf.c
