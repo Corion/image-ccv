@@ -1,15 +1,11 @@
 .gitignore
 ccv-src/.gitignore
-ccv-src/bin/.ycm_extra_conf.py
 ccv-src/bin/bbfcreate.c
 ccv-src/bin/bbfdetect.c
 ccv-src/bin/bbffmt.c
 ccv-src/bin/convert.c
 ccv-src/bin/dpmcreate.c
 ccv-src/bin/dpmdetect.c
-ccv-src/bin/icfcreate.c
-ccv-src/bin/icfdetect.c
-ccv-src/bin/icfoptimize.c
 ccv-src/bin/make.bat
 ccv-src/bin/makefile
 ccv-src/bin/Makefile.mk
@@ -23,7 +19,6 @@ ccv-src/doc/bbf.md
 ccv-src/doc/cache.md
 ccv-src/doc/dpm.md
 ccv-src/doc/http.md
-ccv-src/doc/icf.md
 ccv-src/doc/sift.md
 ccv-src/doc/swt.md
 ccv-src/doc/tld.md
@@ -114,15 +109,6 @@ ccv-src/samples/face/stage-6.txt
 ccv-src/samples/face/stage-7.txt
 ccv-src/samples/face/stage-8.txt
 ccv-src/samples/face/stage-9.txt
-ccv-src/samples/pedestrian.icf
-ccv-src/samples/pedestrian.m
-ccv-src/samples/pedestrian/cascade-1
-ccv-src/samples/pedestrian/cascade-2
-ccv-src/samples/pedestrian/cascade-3
-ccv-src/samples/pedestrian/cascade-4
-ccv-src/samples/pedestrian/cascade-5
-ccv-src/samples/pedestrian/cascade-6
-ccv-src/samples/pedestrian/multiscale
 ccv-src/serve/async.c
 ccv-src/serve/async.h
 ccv-src/serve/bbf.c
@@ -132,7 +118,6 @@ ccv-src/serve/ebb.h
 ccv-src/serve/ebb_request_parser.c
 ccv-src/serve/ebb_request_parser.h
 ccv-src/serve/ebb_request_parser.rl
-ccv-src/serve/icf.c
 ccv-src/serve/makefile
 ccv-src/serve/parsers.c
 ccv-src/serve/serve.c
