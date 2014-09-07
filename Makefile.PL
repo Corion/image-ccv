@@ -63,6 +63,7 @@ WriteMakefile1(
                         'DynaLoader' => '0',
                         'Exporter'   => '0',
                         'Carp'       => '0',
+                        'warnings'   => '0',
     },
     'NAME'          => $module,
     'LICENSE'       => 'perl',

@@ -1,5 +1,6 @@
-#!perl -w
+#!perl
 use strict;
+use warnings;
 use Imager;
 use Imager::Fill;
 use Image::CCV qw(sift);
