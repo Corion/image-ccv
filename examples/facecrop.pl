@@ -1,5 +1,6 @@
-#!perl -w
+#!perl
 use strict;
+use warnings;
 use Getopt::Long;
 use Pod::Usage;
 use List::Util qw(max);
@@ -31,7 +32,7 @@ facecrop.pl - create crop from image using the largest face area
 C<--output-file> - output file name
 
 The output file name will be used as a template if more than one face
-is detected.
+is detected. Supply a sprintf() template (in other words: include a %s). 
 
 =item *
 
@@ -64,6 +65,7 @@ C<--verbose> - output more information during progress
 
 =cut
 
+pod2usage(1) unless @ARGV;
 GetOptions(
     'output-file|o:s'        => \my $out_file,
     'width|w:s'  => \my $max_width,
@@ -73,6 +75,7 @@ GetOptions(
     'draw-box'   => \my $draw_box,
     'verbose'    => \my $verbose,
 ) or pod2usage();
+
 $scale ||= 1.5; # default chosen by wild guess
 
 for my $scene (@ARGV) {
@@ -140,8 +143,7 @@ for my $scene (@ARGV) {
             my $out_name = sprintf $out_file, $index++;
             $out->write( file => $out_name )
                 or die $out->errstr;
-            print "$out_name\n";
-            
+            print "$out_name\n";   
         } else {
             my ($x,$y,$width,$height,$confidence) = @$face;
             print "($x,$y): ${width}x$height @ $confidence\n";

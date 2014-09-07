@@ -235,6 +235,11 @@ Please report bugs in this module via the RT CPAN bug queue at
 L<https://rt.cpan.org/Public/Dist/Display.html?Name=Image-CCV>
 or via mail to L<image-ccv-Bugs@rt.cpan.org>.
 
+=head1 INSTALL
+
+Compilation requires -dev header libraries, so make sure you have (at the time of writing, on *nix)
+I<libjpeg8-dev> and I<libpng12-dev> installed.
+
 =head1 AUTHOR
 
 Max Maischein C<corion@cpan.org>

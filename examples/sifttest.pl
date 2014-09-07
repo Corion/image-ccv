@@ -1,5 +1,8 @@
-#!perl -w
+#!perl
 use strict;
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
 use Imager;
 use Imager::Fill;
 use List::Util qw(max);
@@ -8,8 +11,38 @@ use Image::CCV qw(sift);
 use vars qw($VERSION);
 $VERSION = '0.09';
 
-my $scene  = "images/IMG_1229_bw_small.png";
-my $object = "images/IMG_1230_bw_sofa.png";
+=pod
+
+Command-line options are:
+
+=over 2
+
+=item *
+
+C<--scene> - image of a scene to use
+
+=item *
+
+C<--object> - image of an object to use
+
+=item *
+
+C<--object> - filename of output file, defaults to out.png
+
+=cut
+
+pod2usage(1) unless @ARGV;
+GetOptions(
+    'scene|s:s'   => \my $scene,
+    'object|t:s'  => \my $object, # t=thing
+    'output|o:s'  => \my $output,
+) or pod2usage();
+
+die "scene image-file: $scene not found!" unless -f $scene;
+die "object image-file: $object not found!" unless -f $object;
+
+$output ||= 'out.png';
+print "output file: $output \n";
 
 my @coords = sift( $object, $scene, );
 print "@$_\n" for @coords;
@@ -60,5 +93,5 @@ for (@points) {
     );
 };
 
-$out->write( file => 'out.png' )
+$out->write( file => $output )
     or die $out->errstr;
