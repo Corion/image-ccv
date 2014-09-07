@@ -9,7 +9,7 @@ use Imager::Fill;
 use Image::CCV qw(detect_faces);
 
 use vars qw($VERSION);
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 =head1 NAME
 

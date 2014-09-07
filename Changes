@@ -2,6 +2,11 @@
 # TODO: Add FAQ.pm
 # TODO: Document examples
 
+0.10 20140907
+    . Documentation/installation hints, you need the dev versions of libpng and libjpg (ISYNC)
+    . Example programs now use 'warnings.pm'
+    . Sorry, no features included...
+
 0.09 20140322
     . Clean up MANIFEST, some files were not packaged
 

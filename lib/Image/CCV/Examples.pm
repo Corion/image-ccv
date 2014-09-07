@@ -16,7 +16,7 @@ package Image::CCV::Examples;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 1;
 
@@ -52,8 +52,9 @@ The following is a list of the 3 example programs that are included in the Image
 
 =head2 Example: facecrop.pl
 
-    #!perl -w
+    #!perl
     use strict;
+    use warnings;
     use Getopt::Long;
     use Pod::Usage;
     use List::Util qw(max);
@@ -62,7 +63,7 @@ The following is a list of the 3 example programs that are included in the Image
     use Image::CCV qw(detect_faces);
     
     use vars qw($VERSION);
-    $VERSION = '0.09';
+    $VERSION = '0.10';
     
     =head1 NAME
     
@@ -85,7 +86,7 @@ The following is a list of the 3 example programs that are included in the Image
     C<--output-file> - output file name
     
     The output file name will be used as a template if more than one face
-    is detected.
+    is detected. Supply a sprintf() template (in other words: include a %s). 
     
     =item *
     
@@ -118,6 +119,7 @@ The following is a list of the 3 example programs that are included in the Image
     
     =cut
     
+    pod2usage(1) unless @ARGV;
     GetOptions(
         'output-file|o:s'        => \my $out_file,
         'width|w:s'  => \my $max_width,
@@ -127,6 +129,7 @@ The following is a list of the 3 example programs that are included in the Image
         'draw-box'   => \my $draw_box,
         'verbose'    => \my $verbose,
     ) or pod2usage();
+    
     $scale ||= 1.5; # default chosen by wild guess
     
     for my $scene (@ARGV) {
@@ -194,8 +197,7 @@ The following is a list of the 3 example programs that are included in the Image
                 my $out_name = sprintf $out_file, $index++;
                 $out->write( file => $out_name )
                     or die $out->errstr;
-                print "$out_name\n";
-                
+                print "$out_name\n";   
             } else {
                 my ($x,$y,$width,$height,$confidence) = @$face;
                 print "($x,$y): ${width}x$height @ $confidence\n";
@@ -203,17 +205,22 @@ The following is a list of the 3 example programs that are included in the Image
         }
     }
 
-Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.09/examples/facecrop.pl>
+
+Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.10/examples/facecrop.pl>
 
 =head2 Example: facetest.pl
 
-    #!perl -w
+    #!perl
     use strict;
+    use warnings;
     use Getopt::Long;
     use Pod::Usage;
     use Imager;
     use Imager::Fill;
     use Image::CCV qw(detect_faces);
+    
+    use vars qw($VERSION);
+    $VERSION = '0.10';
     
     =head1 NAME
     
@@ -260,24 +267,57 @@ Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.09/ex
         }
     }
 
-Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.09/examples/facetest.pl>
+Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.10/examples/facetest.pl>
 
 =head2 Example: sifttest.pl
 
 paste the two input images side by side
 $out->rubthrough(
-    #!perl -w
+    #!perl
     use strict;
+    use warnings;
+    use Getopt::Long;
+    use Pod::Usage;
     use Imager;
     use Imager::Fill;
     use List::Util qw(max);
     use Image::CCV qw(sift);
     
     use vars qw($VERSION);
-    $VERSION = '0.09';
+    $VERSION = '0.10';
     
-    my $scene  = "images/IMG_1229_bw_small.png";
-    my $object = "images/IMG_1230_bw_sofa.png";
+    =pod
+    
+    Command-line options are:
+    
+    =over 2
+    
+    =item *
+    
+    C<--scene> - image of a scene to use
+    
+    =item *
+    
+    C<--object> - image of an object to use
+    
+    =item *
+    
+    C<--object> - filename of output file, defaults to out.png
+    
+    =cut
+    
+    pod2usage(1) unless @ARGV;
+    GetOptions(
+        'scene|s:s'   => \my $scene,
+        'object|t:s'  => \my $object, # t=thing
+        'output|o:s'  => \my $output,
+    ) or pod2usage();
+    
+    die "scene image-file: $scene not found!" unless -f $scene;
+    die "object image-file: $object not found!" unless -f $object;
+    
+    $output ||= 'out.png';
+    print "output file: $output \n";
     
     my @coords = sift( $object, $scene, );
     print "@$_\n" for @coords;
@@ -328,10 +368,11 @@ $out->rubthrough(
         );
     };
     
-    $out->write( file => 'out.png' )
+    $out->write( file => $output )
         or die $out->errstr;
 
-Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.09/examples/sifttest.pl>
+
+Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.10/examples/sifttest.pl>
 
 =head1 AUTHOR
 
