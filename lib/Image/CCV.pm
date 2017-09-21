@@ -219,7 +219,7 @@ The upstream repository of C<libccv> is at
 =head1 SUPPORT
 
 The public support forum of this module is
-L<http://perlmonks.org/>.
+L<https://perlmonks.org/>.
 
 The support for C<libccv> can be found at L<http://libccv.org>.
 
@@ -246,7 +246,7 @@ Max Maischein C<corion@cpan.org>
 
 =head1 COPYRIGHT (c)
 
-Copyright 2012-2013 by Max Maischein C<corion@cpan.org>.
+Copyright 2012-2014 by Max Maischein C<corion@cpan.org>.
 
 =head1 LICENSE
 
