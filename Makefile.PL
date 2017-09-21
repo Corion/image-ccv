@@ -6,14 +6,23 @@ use Config;
 use lib qw(inc);
 use Devel::CheckLib;
 
+# See lib/ExtUtils/MakeMaker.pm for details of how to influence
+# the contents of the Makefile that is written.
+
+# Normalize version strings like 6.30_02 to 6.3002,
+# so that we can do numerical comparisons on it.
+my $eumm_version = $ExtUtils::MakeMaker::VERSION;
+$eumm_version =~ s/_//;
+
 # Prompt the user here for any paths and other configuration
 
 my @tests = map { glob $_ } 't/*.t', 't/*/*.t';
 my $module = 'Image::CCV';
-(my $module_pm = "lib/$module.pm") =~ s!::!/!g;
+(my $main_file = "lib/$module.pm" ) =~ s!::!/!g;
+(my $distbase = $module) =~ s!::!-!g;
 
 # I should maybe use something like Shipwright...
-#regen_README($module_pm);
+#regen_README($main_file);
 regen_EXAMPLES();
 
 my $ccflags = $ENV{CCFLAGS}
@@ -37,37 +46,58 @@ if(! $is_Win32) {
     check_lib_or_exit( header => 'alloca.h', function => '(void)&alloca; return 0;' );
 };
 
-my $LIBS = $ENV{LIBS} 
-           || '-ljpeg -lpng'
+my @LIBS = split /\s+/, $ENV{LIBS};
+@LIBS = qw(-ljpeg -lpng) unless @LIBS;
            ;
 
 if( $is_Win32 ) {    
     # I'm sorry, but I don't know how else get -lws2_32 to link :-/
-    $LIBS = "$LIBS -LC:\\strawberry-5.16\\c\\i686-w64-mingw32\\lib -lws2_32";
+    #$LIBS = "$LIBS"; # 
+    push @LIBS, '-lws2_32';
     
 };
 # These should be the default everywhere, but aren't on my versions of Perl
 # (strawberry and Debian ./Configure -de)
 $ccflags = "-msse2 -fPIC $ccflags";
 
-my @LIBS = ($LIBS);
+#my @LIBS = ($LIBS);
 
-WriteMakefile1(
-    MIN_PERL_VERSION => '5.006',
+# -*- mode: perl; c-basic-offset: 4; indent-tabs-mode: nil; -*-
+
+my %module = (
+    NAME                => $module,
+    AUTHOR              => q{Max Maischein <corion@cpan.org>},
+    VERSION_FROM        => $main_file,
+    ABSTRACT_FROM       => $main_file,
     META_MERGE => {
+        "meta-spec" => { version => 2 },
         resources => {
-            repository => 'http://github.com/Corion/image-ccv',
+            repository => {
+                web => 'https://github.com/Corion/image-ccv',
+                url => 'git://github.com/Corion/image-ccv.git',
+                type => 'git',
+            }
         },
+        dynamic_config   => 0, # we promise to keep META.* up-to-date
+        x_static_install => 0, # we need a C compiler and run stuff on install
     },
+
+    'LICENSE'=> 'perl',
+
+    MIN_PERL_VERSION => '5.006',
     BUILD_REQUIRES => {
                         'DynaLoader' => '0',
                         'Exporter'   => '0',
                         'Carp'       => '0',
                         'warnings'   => '0',
+                        'ExtUtils::MakeMaker' => 0,
+    },
+    CONFIGURE_REQUIRES => {
+        'Devel::CheckLib' => 0,
     },
     'NAME'          => $module,
     'LICENSE'       => 'perl',
-    'VERSION_FROM'  => $module_pm,
+    'VERSION_FROM'  => $main_file,
     'PREREQ_PM'     => {
                        'Imager' => 0.78,
                         'List::Util' => '0', # just for the example programs
@@ -81,13 +111,24 @@ WriteMakefile1(
     #'CCFLAGS' => "-msse2 -mms-bitfields $ccflags",
     'CCFLAGS' => $ccflags,
     #'INC' => '-I"C:/Projekte/CCV"',
-    'LIBS' => [
-        $LIBS,
-    ],
-    ABSTRACT_FROM   => $module_pm, # retrieve abstract from module
+    'LIBS' => join( " ", @LIBS),
+    ABSTRACT_FROM   => $main_file, # retrieve abstract from module
     AUTHOR          => 'Max Maischein <corion@cpan.org>',
     test            => { TESTS => join( ' ', @tests ) },
 );
+
+# This is so that we can do
+#     require 'Makefile.PL'
+# and then call get_module_info
+
+sub get_module_info { %module }
+
+if( ! caller ) {
+    # I should maybe use something like Shipwright...
+    regen_README($main_file);
+    regen_EXAMPLES();
+    WriteMakefile1(get_module_info);
+};
 
 1;
 
@@ -139,7 +180,7 @@ sub regen_README {
 
 sub regen_EXAMPLES {
     my $perl = $^X;
-    (my $target = $module_pm) =~ s!\.pm$!/Examples.pm!;
+    (my $target = $main_file) =~ s!\.pm$!/Examples.pm!;
     
     if( -d 'examples' ) {
         warn "(Re)Creating $target\n";
