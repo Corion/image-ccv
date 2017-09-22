@@ -42,7 +42,7 @@ if(! $is_Win32) {
     check_lib_or_exit( header => 'alloca.h', function => '(void)&alloca; return 0;' );
 };
 
-my @LIBS = split /\s+/, $ENV{LIBS};
+my @LIBS = split /\s+/, ($ENV{LIBS} || '');
 @LIBS = qw(-ljpeg -lpng) unless @LIBS;
            ;
 
