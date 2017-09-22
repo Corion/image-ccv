@@ -2,6 +2,11 @@
 # TODO: Add FAQ.pm
 # TODO: Document examples
 
+0.11 to be released
+    . Travis CI enabled
+    . More modern Makefile.PL distribution
+    . Documentation URLs point to https where possible
+
 0.10 20140907
     . Documentation/installation hints, you need the dev versions of libpng and libjpg (ISYNC)
     . Example programs now use 'warnings.pm'
