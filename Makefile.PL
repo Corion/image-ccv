@@ -21,10 +21,6 @@ my $module = 'Image::CCV';
 (my $main_file = "lib/$module.pm" ) =~ s!::!/!g;
 (my $distbase = $module) =~ s!::!-!g;
 
-# I should maybe use something like Shipwright...
-#regen_README($main_file);
-regen_EXAMPLES();
-
 my $ccflags = $ENV{CCFLAGS}
             || $Config::Config{ ccflags }
             ;
