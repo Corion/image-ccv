@@ -32,7 +32,6 @@ ccv-src/js/ccv.js
 ccv-src/js/face.js
 ccv-src/js/index.html
 ccv-src/js/loader.php
-ccv-src/lib/.ycm_extra_conf.py
 ccv-src/lib/3rdparty/dsfmt/dSFMT-common.h
 ccv-src/lib/3rdparty/dsfmt/dSFMT-params.h
 ccv-src/lib/3rdparty/dsfmt/dSFMT-params19937.h
