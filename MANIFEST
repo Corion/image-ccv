@@ -176,6 +176,7 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 META.json
 META.yml
+README
 README.mkdn
 t/00-load.t
 t/01-c_structs.t

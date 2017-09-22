@@ -37,3 +37,5 @@ ccv-src/bin/.*.rb$
 ccv-src/test
 MYMETA.*$
 Image-CCV-.*$
+^\.travis.yml$
+^ccv-src/bin/.ycm_extra_conf.py
