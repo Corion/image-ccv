@@ -237,7 +237,6 @@ sub regen_EXAMPLES {
     };
     my $examples = `$perl -w examples/gen_examples_pod.pl $module`;
     if ($examples) {
-        warn "(Re)Creating lib/Image/CCV/Examples.pm\n";
         $examples =~ s/\r\n/\n/g;
         update_file( 'lib/Image/CCV/Examples.pm', $examples );
     };
