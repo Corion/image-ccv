@@ -89,7 +89,7 @@ Memory currently is only allocated. Rarely is memory deallocated.
 # REPOSITORY
 
 The public repository of this module is 
-[http://github.com/Corion/image-ccv](http://github.com/Corion/image-ccv).
+[https://github.com/Corion/image-ccv](https://github.com/Corion/image-ccv).
 
 The upstream repository of `libccv` is at
 
@@ -104,7 +104,7 @@ The support for `libccv` can be found at [http://libccv.org](http://libccv.org).
 
 I've given one lightning talk about this module at Perl conferences:
 
-[German Perl Workshop, German](http://corion.net/talks/Image-CCV-lightning-talk/image-ccv-lightning-talk.de.html)
+[German Perl Workshop, German](https://corion.net/talks/Image-CCV-lightning-talk/image-ccv-lightning-talk.de.html)
 
 # BUG TRACKER
 

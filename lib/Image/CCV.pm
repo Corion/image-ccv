@@ -212,7 +212,7 @@ Memory currently is only allocated. Rarely is memory deallocated.
 =head1 REPOSITORY
 
 The public repository of this module is 
-L<http://github.com/Corion/image-ccv>.
+L<https://github.com/Corion/image-ccv>.
 
 The upstream repository of C<libccv> is at
 
@@ -227,7 +227,7 @@ The support for C<libccv> can be found at L<http://libccv.org>.
 
 I've given one lightning talk about this module at Perl conferences:
 
-L<German Perl Workshop, German|http://corion.net/talks/Image-CCV-lightning-talk/image-ccv-lightning-talk.de.html>
+L<German Perl Workshop, German|https://corion.net/talks/Image-CCV-lightning-talk/image-ccv-lightning-talk.de.html>
 
 =head1 BUG TRACKER
 
