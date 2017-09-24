@@ -16,7 +16,7 @@ package Image::CCV::Examples;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 1;
 
@@ -206,7 +206,7 @@ The following is a list of the 3 example programs that are included in the Image
     }
 
 
-Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.10/examples/facecrop.pl>
+Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.11/examples/facecrop.pl>
 
 =head2 Example: facetest.pl
 
@@ -267,7 +267,7 @@ Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.10/ex
         }
     }
 
-Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.10/examples/facetest.pl>
+Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.11/examples/facetest.pl>
 
 =head2 Example: sifttest.pl
 
@@ -372,7 +372,7 @@ $out->rubthrough(
         or die $out->errstr;
 
 
-Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.10/examples/sifttest.pl>
+Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.11/examples/sifttest.pl>
 
 =head1 AUTHOR
 

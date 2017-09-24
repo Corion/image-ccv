@@ -91,7 +91,7 @@ Memory currently is only allocated. Rarely is memory deallocated.
 
 # REPOSITORY
 
-The public repository of this module is 
+The public repository of this module is
 [https://github.com/Corion/image-ccv](https://github.com/Corion/image-ccv).
 
 The upstream repository of `libccv` is at

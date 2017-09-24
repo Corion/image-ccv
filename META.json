@@ -50,7 +50,7 @@
          "web" : "https://github.com/Corion/image-ccv"
       }
    },
-   "version" : "0.10",
+   "version" : "0.11",
    "x_serialization_backend" : "JSON::PP version 2.94",
    "x_static_install" : 0
 }

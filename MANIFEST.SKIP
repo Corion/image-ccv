@@ -33,7 +33,12 @@ ccv-src/lib/makefile
 ccv-src/lib/Makefile.mk
 out.png
 ccv-src/samples/.*.png$
+ccv-src/samples/image-net-2012.*$
+ccv-src/samples/.*\.sqlite3$
+ccv-src/bin/cuda/
 ccv-src/bin/.*.rb$
+ccv-src/lib/cuda/
+ccv-src/site
 ccv-src/test
 MYMETA.*$
 Image-CCV-.*$
