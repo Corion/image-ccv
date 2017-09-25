@@ -2,7 +2,7 @@ package Image::CCV::Examples;
 
 ###############################################################################
 #
-# Examples - Image::CCVW examples.
+# Examples - Image::CCV examples.
 #
 # A documentation only module showing the examples that are
 # included in the Image::CCV distribution. This
