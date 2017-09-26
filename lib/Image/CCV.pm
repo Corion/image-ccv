@@ -214,7 +214,7 @@ Memory currently is only allocated. Rarely is memory deallocated.
 The public repository of this module is
 L<https://github.com/Corion/image-ccv>.
 
-The upstream repository of C<libccv> is at
+The upstream repository of C<libccv> is at L<https://github.com/liuliu/ccv>.
 
 =head1 SUPPORT
 
