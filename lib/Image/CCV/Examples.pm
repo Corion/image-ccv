@@ -63,7 +63,7 @@ The following is a list of the 3 example programs that are included in the Image
     use Image::CCV qw(detect_faces);
     
     use vars qw($VERSION);
-    $VERSION = '0.10';
+    $VERSION = '0.11';
     
     =head1 NAME
     
@@ -220,7 +220,7 @@ Download this example: L<http://cpansearch.perl.org/src/CORION/Image-CCV-0.11/ex
     use Image::CCV qw(detect_faces);
     
     use vars qw($VERSION);
-    $VERSION = '0.10';
+    $VERSION = '0.11';
     
     =head1 NAME
     
@@ -284,7 +284,7 @@ $out->rubthrough(
     use Image::CCV qw(sift);
     
     use vars qw($VERSION);
-    $VERSION = '0.10';
+    $VERSION = '0.11';
     
     =pod
     
